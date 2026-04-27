@@ -676,7 +676,7 @@ input[type=range].custom {
 
 <script>
 // ════ CONFIG ════
-const GAS_URL   = 'https://script.google.com/macros/s/AKfycbwe_4xsjeUuH2fwIJR3Io5OWb1scm6ehHZOIiB8Foqj2uH69sOJQkBB-gN4VqLwpsdI/exec';
+const GAS_URL   = 'YOUR_GAS_URL_HERE';
 const STORAGE_KEY = 'apx_m_ach';
 const LOG_KEY     = 'apx_m_log';
 const BR_KEY      = 'apx_m_br';
@@ -815,6 +815,7 @@ function saveItem(item) {
     const achs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     achs.unshift(item);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(achs));
+    renderTasks();
 
     // Add to log
     const logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
@@ -990,12 +991,7 @@ function fmtDateShort(iso) {
   return new Date(iso).toLocaleDateString('ar-SA',{month:'short',day:'numeric'}).replace(/\u200f/g,'');
 }
 
-// Re-render tasks after each save
-const _origSaveItem = saveItem;
-function saveItem(item) {
-  _origSaveItem(item);
-  renderTasks();
-}
+
 
 
 // ════ EDIT & DELETE ════
