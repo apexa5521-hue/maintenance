@@ -892,7 +892,7 @@ function updateDashboard() {
 
 // ═══════════ GAS SYNC ═══════════
 async function syncGAS(item, isNew) {
-  if (!GAS_URL || GAS_URL==='YOUR_GAS_URL_HERE') return;
+  if (!GAS_URL || GAS_URL==='https://script.google.com/macros/s/AKfycbwe_4xsjeUuH2fwIJR3Io5OWb1scm6ehHZOIiB8Foqj2uH69sOJQkBB-gN4VqLwpsdI/exec') return;
   try { await fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:isNew?'addMaintAch':'updateMaintAch',data:item})}); } catch(e){}
 }
 
