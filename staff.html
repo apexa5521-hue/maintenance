@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>تسجيل مهمة — قسم الصيانة والتشغيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #0E1117; --ink-2: #1C2333; --ink-3: #2D3748;
+  --bg:     #F4F7FB; --card: #FFFFFF;
+  --border: #E2E8F0; --border-2: #CBD5E0;
+  --blue:   #2563EB; --blue-lt: #EFF6FF;
+  --green:  #16A34A; --green-lt: #F0FDF4; --green-dim: #BBF7D0;
+  --amber:  #D97706; --amber-lt: #FFFBEB; --amber-dim: #FDE68A;
+  --red:    #DC2626; --red-lt: #FEF2F2;
+  --purple: #7C3AED; --purple-lt: #F5F3FF; --purple-dim: #DDD6FE;
+  --teal:   #0D9488; --teal-lt: #F0FDFA;
+  --slate:  #64748B; --slate-lt: #F1F5F9;
+  --done-c: #16A34A; --done-bg: #F0FDF4; --done-bd: #BBF7D0;
+  --prog-c: #2563EB; --prog-bg: #EFF6FF; --prog-bd: #BFDBFE;
+  --plan-c: #7C3AED; --plan-bg: #F5F3FF; --plan-bd: #DDD6FE;
+  --hold-c: #D97706; --hold-bg: #FFFBEB; --hold-bd: #FDE68A;
+  --r: 12px; --r2: 8px;
+  --sh: 0 1px 4px rgba(0,0,0,.08);
+  --sh2: 0 6px 24px rgba(0,0,0,.10);
+  --font: 'Tajawal', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 15px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── HEADER ── */
+.hdr {
+  background: var(--ink);
+  padding: 0 18px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 10px rgba(0,0,0,.22);
+}
+.hdr-inner {
+  height: 54px; max-width: 540px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hdr-brand { display:flex; align-items:center; gap:10px; }
+.hdr-logo {
+  width: 30px; height: 30px; background: var(--blue);
+  border-radius: 7px; display: flex; align-items:center; justify-content:center;
+}
+.hdr-logo svg { width:15px; height:15px; fill:none; stroke:#fff; stroke-width:2.3; }
+.hdr-title { font-size:14px; font-weight:700; color:#fff; }
+.hdr-sub   { font-size:10px; color:#94A3B8; }
+.hdr-date  {
+  font-family: var(--mono); font-size:10px; color:#64748B;
+  background: #1C2333; padding:4px 10px; border-radius:20px;
+}
+
+/* ── WRAP ── */
+.wrap { max-width: 540px; margin: 0 auto; padding: 20px 16px 60px; }
+
+/* ── SECTION HEADER ── */
+.sec-hdr {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 20px;
+}
+.sec-icon {
+  width: 36px; height: 36px; background: var(--blue-lt);
+  border-radius: 9px; display: flex; align-items:center; justify-content:center;
+}
+.sec-icon svg { width:18px; height:18px; fill:none; stroke:var(--blue); stroke-width:2; }
+.sec-title { font-size:17px; font-weight:800; color:var(--ink); }
+.sec-sub   { font-size:12px; color:var(--slate); margin-top:1px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card); border:1px solid var(--border);
+  border-radius: var(--r); padding:18px; margin-bottom:14px;
+  box-shadow: var(--sh);
+}
+.card-label {
+  font-size:11px; font-weight:700; color:var(--slate);
+  text-transform:uppercase; letter-spacing:.6px; margin-bottom:12px;
+}
+
+/* ── FIELD ── */
+.field { margin-bottom:16px; }
+.field-label { display:block; font-size:12px; font-weight:700; color:var(--ink-3); margin-bottom:6px; }
+.req { color:var(--red); margin-right:2px; }
+input[type=text], textarea, input[type=date] {
+  width:100%; padding:11px 13px; border:1.5px solid var(--border);
+  border-radius:var(--r2); font-family:var(--font); font-size:14px;
+  color:var(--ink); background:var(--card); outline:none;
+  transition:border-color .15s, box-shadow .15s; -webkit-appearance:none;
+}
+input:focus, textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+textarea { resize:vertical; min-height:90px; line-height:1.7; }
+
+/* ── BRANCH GRID ── */
+.branch-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
+.branch-opt {
+  padding:12px 10px; border:2px solid var(--border); border-radius:var(--r2);
+  font-family:var(--font); font-size:13px; font-weight:600;
+  color:var(--slate); background:var(--card); cursor:pointer;
+  text-align:center; transition:all .16s; line-height:1.3;
+}
+.branch-opt.sel-بريدة {
+  border-color:var(--teal); background:var(--teal-lt); color:var(--teal);
+  box-shadow:0 0 0 3px rgba(13,148,136,.12);
+}
+.branch-opt.sel-عنيزة {
+  border-color:var(--purple); background:var(--purple-lt); color:var(--purple);
+  box-shadow:0 0 0 3px rgba(124,58,237,.12);
+}
+.branch-opt.sel-other {
+  border-color:var(--ink-3); background:var(--slate-lt); color:var(--ink-3);
+  box-shadow:0 0 0 3px rgba(45,55,72,.1);
+}
+
+/* ── STATUS GRID ── */
+.status-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.status-opt {
+  padding:13px 10px; border:2px solid var(--border); border-radius:var(--r2);
+  font-family:var(--font); font-size:13px; font-weight:700;
+  color:var(--slate); background:var(--card); cursor:pointer;
+  text-align:center; transition:all .16s;
+}
+.status-opt small { display:block; font-size:10px; font-weight:400; margin-top:2px; color:var(--slate); }
+.status-opt.sel-مكتمل { border-color:var(--done-c); background:var(--done-bg); color:var(--done-c); box-shadow:0 0 0 3px rgba(22,163,74,.1); }
+.status-opt.sel-مكتمل small { color:var(--done-c); }
+.status-opt.sel-جارٍ   { border-color:var(--prog-c); background:var(--prog-bg); color:var(--prog-c); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+.status-opt.sel-جارٍ   small { color:var(--prog-c); }
+.status-opt.sel-مخطط   { border-color:var(--plan-c); background:var(--plan-bg); color:var(--plan-c); box-shadow:0 0 0 3px rgba(124,58,237,.1); }
+.status-opt.sel-مخطط   small { color:var(--plan-c); }
+.status-opt.sel-متوقف  { border-color:var(--hold-c); background:var(--hold-bg); color:var(--hold-c); box-shadow:0 0 0 3px rgba(217,119,6,.1); }
+.status-opt.sel-متوقف  small { color:var(--hold-c); }
+
+/* ── STOP REASON ── */
+.stop-reason {
+  margin-top:12px; overflow:hidden;
+  max-height:0; transition:max-height .3s ease, opacity .3s ease;
+  opacity:0;
+}
+.stop-reason.show { max-height:200px; opacity:1; }
+.stop-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.stop-chip {
+  padding:5px 13px; border:1.5px solid var(--border); border-radius:99px;
+  font-family:var(--font); font-size:11px; font-weight:600;
+  color:var(--slate); background:var(--card); cursor:pointer; transition:all .14s;
+}
+.stop-chip.active { border-color:var(--amber); background:var(--amber-lt); color:var(--amber); }
+
+/* ── PROGRESS SLIDER ── */
+.prog-card {
+  background: var(--card); border:1px solid var(--border);
+  border-radius:var(--r); padding:18px; margin-bottom:14px; box-shadow:var(--sh);
+}
+.prog-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.prog-title  { font-size:12px; font-weight:700; color:var(--slate); text-transform:uppercase; letter-spacing:.6px; }
+.prog-val    { font-family:var(--mono); font-size:28px; font-weight:800; color:var(--blue); line-height:1; }
+.prog-track  { position:relative; height:10px; background:var(--border); border-radius:99px; margin-bottom:6px; overflow:visible; }
+.prog-fill   { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--blue),#60A5FA); transition:width .3s ease; position:relative; }
+.prog-thumb  {
+  position:absolute; left:0; top:50%;
+  transform:translate(-50%,-50%);
+  width:22px; height:22px; border-radius:50%;
+  background:#fff; border:3px solid var(--blue);
+  box-shadow:0 2px 8px rgba(37,99,235,.3);
+  pointer-events:none; transition:left .3s ease;
+}
+input[type=range].custom {
+  position:absolute; inset:0; width:100%; height:100%;
+  opacity:0; cursor:pointer; margin:0; padding:0;
+}
+.prog-labels { display:flex; justify-content:space-between; }
+.prog-lbl    { font-size:10px; color:var(--border-2); font-family:var(--mono); }
+.prog-milestones { display:flex; justify-content:space-between; margin-top:10px; }
+.ms-btn {
+  padding:4px 10px; border:1.5px solid var(--border); border-radius:99px;
+  font-family:var(--mono); font-size:10px; font-weight:700; color:var(--slate);
+  background:var(--card); cursor:pointer; transition:all .14s;
+}
+.ms-btn:hover { border-color:var(--blue); color:var(--blue); background:var(--blue-lt); }
+.ms-btn.ms-active { border-color:var(--blue); background:var(--blue); color:#fff; }
+
+/* ── SUBMIT BUTTON ── */
+.btn-submit {
+  width:100%; padding:15px; background:var(--blue); color:#fff;
+  border:none; border-radius:var(--r); font-family:var(--font);
+  font-size:15px; font-weight:800; cursor:pointer; transition:all .2s;
+  box-shadow:0 4px 14px rgba(37,99,235,.35); letter-spacing:.2px;
+}
+.btn-submit:hover { background:#1D4ED8; transform:translateY(-1px); box-shadow:0 6px 20px rgba(37,99,235,.4); }
+.btn-submit:active { transform:translateY(0); }
+.btn-submit:disabled { opacity:.6; pointer-events:none; transform:none; }
+
+/* ── SUCCESS STATE ── */
+.success-screen {
+  display:none; text-align:center; padding:40px 20px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); box-shadow:var(--sh);
+}
+.success-screen.show { display:block; animation:fadeIn .3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.success-icon {
+  width:64px; height:64px; background:var(--green-lt); border:2px solid var(--green-dim);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  margin:0 auto 16px;
+}
+.success-icon svg { width:30px; height:30px; stroke:var(--green); fill:none; stroke-width:2.2; }
+.success-title { font-size:18px; font-weight:800; color:var(--ink); margin-bottom:6px; }
+.success-sub   { font-size:13px; color:var(--slate); margin-bottom:20px; line-height:1.6; }
+.success-summary {
+  background:var(--slate-lt); border:1px solid var(--border);
+  border-radius:var(--r2); padding:14px; text-align:right; margin-bottom:20px;
+}
+.ss-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); }
+.ss-row:last-child { border-bottom:none; }
+.ss-key { font-size:11px; color:var(--slate); font-weight:600; }
+.ss-val { font-size:12px; font-weight:700; color:var(--ink-3); font-family:var(--mono); }
+.btn-new {
+  width:100%; padding:12px; background:var(--slate-lt); color:var(--ink-3);
+  border:1px solid var(--border); border-radius:var(--r2); font-family:var(--font);
+  font-size:13px; font-weight:700; cursor:pointer; transition:all .15s;
+}
+.btn-new:hover { background:var(--border); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:20px; left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--ink); color:#fff; padding:9px 18px; border-radius:7px;
+  font-size:12px; font-weight:600; opacity:0; transition:all .22s;
+  z-index:999; pointer-events:none; white-space:nowrap; box-shadow:var(--sh2);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.toast.ok  { background:var(--green); }
+.toast.err { background:var(--red); }
+
+/* ── CHAR COUNT ── */
+.char-count { font-size:10px; color:var(--border-2); text-align:left; margin-top:3px; font-family:var(--mono); }
+
+/* ── MY TASKS LIST ── */
+.tasks-section { margin-top:28px; }
+.tasks-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px;
+}
+.tasks-hdr-left { display:flex; align-items:center; gap:8px; }
+.tasks-title { font-size:15px; font-weight:800; color:var(--ink); }
+.tasks-count {
+  font-family:var(--mono); font-size:11px; font-weight:700;
+  background:var(--ink-2); color:#fff; padding:2px 8px; border-radius:99px;
+}
+.tasks-filter-row { display:flex; gap:6px; margin-bottom:12px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+.tasks-filter-row::-webkit-scrollbar { display:none; }
+.tf-chip {
+  flex-shrink:0; padding:5px 13px; border:1.5px solid var(--border);
+  border-radius:99px; font-family:var(--font); font-size:11px; font-weight:600;
+  color:var(--slate); background:var(--card); cursor:pointer; transition:all .14s;
+}
+.tf-chip.tfc-active { border-color:var(--blue); background:var(--blue); color:#fff; }
+.tf-chip.tfc-done.tfc-active   { background:var(--done-c); border-color:var(--done-c); }
+.tf-chip.tfc-prog.tfc-active   { background:var(--prog-c); border-color:var(--prog-c); }
+.tf-chip.tfc-plan.tfc-active   { background:var(--plan-c); border-color:var(--plan-c); }
+.tf-chip.tfc-hold.tfc-active   { background:var(--hold-c); border-color:var(--hold-c); }
+
+.task-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); margin-bottom:9px; box-shadow:var(--sh);
+  overflow:hidden; transition:box-shadow .18s;
+}
+.task-card:hover { box-shadow:var(--sh2); }
+.task-card-inner { display:flex; gap:0; }
+.task-side-bar { width:4px; flex-shrink:0; }
+.task-body      { flex:1; padding:13px 13px 10px; min-width:0; }
+.task-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:5px; }
+.task-title-text { font-size:13px; font-weight:700; color:var(--ink); line-height:1.4; }
+.task-badges { display:flex; gap:5px; flex-wrap:wrap; flex-shrink:0; }
+.t-badge {
+  font-size:10px; font-weight:700; padding:2px 9px; border-radius:99px;
+  border:1px solid; white-space:nowrap;
+}
+.tb-مكتمل { color:var(--done-c); background:var(--done-bg); border-color:var(--done-bd); }
+.tb-جارٍ   { color:var(--prog-c); background:var(--prog-bg); border-color:var(--prog-bd); }
+.tb-مخطط   { color:var(--plan-c); background:var(--plan-bg); border-color:var(--plan-bd); }
+.tb-متوقف  { color:var(--hold-c); background:var(--hold-bg); border-color:var(--hold-bd); }
+.tb-branch-بريدة { color:var(--teal); background:var(--teal-lt); border-color:#99F6E4; }
+.tb-branch-عنيزة { color:var(--purple); background:var(--purple-lt); border-color:var(--purple-dim); }
+.tb-branch-other { color:var(--slate); background:var(--slate-lt); border-color:var(--border-2); }
+
+.task-desc { font-size:12px; color:var(--ink-3); line-height:1.6; margin-bottom:7px; }
+.task-stop { font-size:11px; color:var(--amber); margin-bottom:6px; }
+.task-prog-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.task-prog-track { flex:1; height:4px; background:var(--border); border-radius:99px; overflow:hidden; }
+.task-prog-fill  { height:100%; border-radius:99px; transition:width .6s ease; }
+.tpf-مكتمل { background:var(--done-c); }
+.tpf-جارٍ  { background:var(--prog-c); }
+.tpf-مخطط  { background:var(--plan-c); }
+.tpf-متوقف { background:var(--hold-c); }
+.task-prog-pct { font-family:var(--mono); font-size:10px; font-weight:700; color:var(--slate); width:32px; text-align:left; }
+.task-dates { display:flex; gap:12px; flex-wrap:wrap; }
+.task-date-item { font-size:10px; color:var(--slate); }
+.task-date-item strong { color:var(--ink-3); font-weight:700; }
+
+.task-deadline {
+  padding:6px 13px 8px;
+  font-size:10px; font-weight:700;
+  border-top:1px solid var(--border);
+}
+.dl-overdue  { color:var(--red);   background:var(--red-lt); }
+.dl-today    { color:var(--amber); background:var(--amber-lt); }
+.dl-soon     { color:var(--blue);  background:var(--blue-lt); }
+.dl-ok       { color:var(--done-c); background:var(--done-bg); }
+
+.tasks-empty { text-align:center; padding:36px 16px; color:var(--slate); }
+.tasks-empty-icon { font-size:36px; margin-bottom:10px; }
+.tasks-empty-text { font-size:13px; }
+
+/* sort bar */
+.sort-bar { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.sort-label { font-size:11px; color:var(--slate); font-weight:600; white-space:nowrap; }
+.sort-select {
+  flex:1; padding:6px 10px; border:1.5px solid var(--border); border-radius:var(--r2);
+  font-family:var(--font); font-size:12px; color:var(--ink); background:var(--card);
+  outline:none; -webkit-appearance:none; cursor:pointer;
+}
+
+/* ── TASK CARD ACTIONS ── */
+.task-card-actions {
+  border-top:1px solid var(--border);
+  display:flex;
+}
+.tca-btn {
+  flex:1; padding:8px 6px; border:none; background:transparent;
+  font-family:var(--font); font-size:11px; font-weight:600;
+  color:var(--slate); cursor:pointer; transition:all .14s;
+}
+.tca-btn:hover { background:var(--slate-lt); color:var(--ink); }
+.tca-btn.tca-danger:hover { background:var(--red-lt); color:var(--red); }
+.tca-btn + .tca-btn { border-right:1px solid var(--border); }
+
+/* ── EDIT DRAWER ── */
+.edit-overlay {
+  position:fixed; inset:0; background:rgba(14,17,23,.5);
+  z-index:200; display:none; align-items:flex-end; justify-content:center;
+  backdrop-filter:blur(2px);
+}
+.edit-overlay.open { display:flex; animation:eoi .2s ease; }
+@keyframes eoi { from{opacity:0} to{opacity:1} }
+.edit-drawer {
+  background:var(--card); border-radius:16px 16px 0 0;
+  width:100%; max-width:540px; max-height:92vh; overflow-y:auto;
+  animation:edi .26s cubic-bezier(.32,.72,0,1); overscroll-behavior:contain;
+}
+@keyframes edi { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.edit-handle { width:36px; height:4px; background:var(--border); border-radius:99px; margin:10px auto 0; }
+.edit-hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px 12px; border-bottom:1px solid var(--border);
+  position:sticky; top:0; background:var(--card); z-index:1;
+}
+.edit-hdr-title { font-size:15px; font-weight:700; color:var(--ink); }
+.edit-hdr-close {
+  width:28px; height:28px; border:1px solid var(--border);
+  border-radius:6px; background:var(--slate-lt); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:var(--slate);
+}
+.edit-body { padding:18px; }
+.edit-section-title { font-size:11px; font-weight:700; color:var(--slate); text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; }
+
+/* ── DELETE CONFIRM ── */
+.del-confirm {
+  background:var(--red-lt); border:1px solid #FECACA;
+  border-radius:var(--r2); padding:11px 13px; margin-bottom:10px;
+  display:none; align-items:center; justify-content:space-between; gap:8px;
+}
+.del-confirm.show { display:flex; }
+.del-msg  { font-size:12px; font-weight:600; color:var(--red); }
+.del-btns { display:flex; gap:6px; }
+.cbtn2 { padding:6px 12px; border:none; border-radius:var(--r2); font-family:var(--font); font-size:11px; font-weight:700; cursor:pointer; }
+.cbtn2-y { background:var(--red); color:#fff; }
+.cbtn2-n { background:var(--slate-lt); color:var(--ink-3); border:1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-brand">
+      <div class="hdr-logo">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a1 1 0 00-1 1v14a1 1 0 001 1h14a1 1 0 001-1v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <div>
+        <div class="hdr-title">تسجيل مهمة</div>
+        <div class="hdr-sub">قسم الصيانة والتشغيل — APEXCARE</div>
+      </div>
+    </div>
+    <div class="hdr-date" id="hDate">—</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- FORM -->
+  <div id="formView">
+
+    <div class="sec-hdr">
+      <div class="sec-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      </div>
+      <div>
+        <div class="sec-title">الأعمال الموكلة</div>
+        <div class="sec-sub">سجّل مهمتك — قسم الصيانة والتشغيل</div>
+      </div>
+    </div>
+
+    <!-- عنوان المهمة -->
+    <div class="card">
+      <div class="card-label">تفاصيل المهمة</div>
+      <div class="field">
+        <label class="field-label"><span class="req">*</span>عنوان المهمة</label>
+        <input type="text" id="f-title" placeholder="مثال: صيانة ضاغط الهواء في وحدة الأسنان" maxlength="120"
+          oninput="document.getElementById('tc').textContent=this.value.length+'/120'">
+        <div class="char-count" id="tc">0/120</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="field-label">الوصف والتفاصيل</label>
+        <textarea id="f-desc" placeholder="أضف أي تفاصيل إضافية عن المهمة..." rows="3"
+          oninput="document.getElementById('dc').textContent=this.value.length+' حرف'"></textarea>
+        <div class="char-count" id="dc">0 حرف</div>
+      </div>
+    </div>
+
+    <!-- الفرع -->
+    <div class="card">
+      <div class="card-label">الفرع</div>
+      <div class="branch-grid" id="branchGrid"></div>
+    </div>
+
+    <!-- الحالة -->
+    <div class="card">
+      <div class="card-label">حالة المهمة</div>
+      <div class="status-grid">
+        <button class="status-opt" data-s="مخطط"  onclick="selStatus(this)">
+          مخطط<small>لم تبدأ بعد</small>
+        </button>
+        <button class="status-opt" data-s="جارٍ"  onclick="selStatus(this)">
+          جارٍ<small>قيد التنفيذ</small>
+        </button>
+        <button class="status-opt" data-s="مكتمل" onclick="selStatus(this)">
+          مكتمل<small>تم الإنجاز</small>
+        </button>
+        <button class="status-opt" data-s="متوقف" onclick="selStatus(this)">
+          متوقف<small>موقوف مؤقتاً</small>
+        </button>
+      </div>
+
+      <!-- سبب التوقف -->
+      <div class="stop-reason" id="stopReason">
+        <div style="margin-top:14px;margin-bottom:8px">
+          <label class="field-label" style="color:var(--amber)">سبب التوقف <span style="font-weight:400;color:var(--slate)">(اختر أو اكتب)</span></label>
+        </div>
+        <div class="stop-chips" id="stopChips">
+          <button class="stop-chip" onclick="selStopReason(this)">انتظار قطع غيار</button>
+          <button class="stop-chip" onclick="selStopReason(this)">انتظار موافقة</button>
+          <button class="stop-chip" onclick="selStopReason(this)">توقف مؤقت للجدولة</button>
+          <button class="stop-chip" onclick="selStopReason(this)">مشكلة تقنية</button>
+          <button class="stop-chip" onclick="selStopReason(this)">نقص عمالة</button>
+          <button class="stop-chip" onclick="selStopReason(this)">أخرى</button>
+        </div>
+        <input type="text" id="f-stop-reason" placeholder="أو اكتب السبب هنا..." style="margin-top:4px">
+      </div>
+    </div>
+
+    <!-- نسبة الإنجاز -->
+    <div class="prog-card" id="progCard">
+      <div class="prog-header">
+        <div class="prog-title">نسبة الإنجاز</div>
+        <div class="prog-val" id="progVal">0%</div>
+      </div>
+      <div class="prog-track" id="progTrack">
+        <div class="prog-fill" id="progFill" style="width:0%">
+          <div class="prog-thumb" id="progThumb"></div>
+        </div>
+        <input type="range" class="custom" id="progRange" min="0" max="100" value="0" oninput="updateProg(this.value)">
+      </div>
+      <div class="prog-labels">
+        <span class="prog-lbl">0%</span>
+        <span class="prog-lbl">25%</span>
+        <span class="prog-lbl">50%</span>
+        <span class="prog-lbl">75%</span>
+        <span class="prog-lbl">100%</span>
+      </div>
+      <div class="prog-milestones">
+        <button class="ms-btn" onclick="setMs(0)">0%</button>
+        <button class="ms-btn" onclick="setMs(25)">25%</button>
+        <button class="ms-btn" onclick="setMs(50)">50%</button>
+        <button class="ms-btn" onclick="setMs(75)">75%</button>
+        <button class="ms-btn" onclick="setMs(100)">100%</button>
+      </div>
+    </div>
+
+    <!-- تواريخ -->
+    <div class="card">
+      <div class="card-label">التواريخ</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">تاريخ البدء</label>
+          <input type="date" id="f-start">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">تاريخ الاكتمال المتوقع</label>
+          <input type="date" id="f-end">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="submitTask()">
+      تسجيل المهمة
+    </button>
+
+  </div><!-- /formView -->
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">تم تسجيل المهمة</div>
+    <div class="success-sub" id="successMsg">تمت إضافة المهمة بنجاح وستظهر في لوحة المتابعة.</div>
+
+    <div class="success-summary" id="successSummary"></div>
+
+    <button class="btn-new" onclick="resetForm()">تسجيل مهمة جديدة</button>
+  </div>
+
+
+  <!-- MY TASKS LIST -->
+  <div class="tasks-section" id="tasksSection">
+    <div class="tasks-hdr">
+      <div class="tasks-hdr-left">
+        <div class="tasks-title">مهامي المسجلة</div>
+        <span class="tasks-count" id="tasksCount">0</span>
+      </div>
+    </div>
+
+    <div class="tasks-filter-row">
+      <button class="tf-chip tfc-active" data-f="all"    onclick="setTF(this,'all')">الكل</button>
+      <button class="tf-chip tfc-done"   data-f="مكتمل"  onclick="setTF(this,'مكتمل')">مكتمل</button>
+      <button class="tf-chip tfc-prog"   data-f="جارٍ"   onclick="setTF(this,'جارٍ')">جارٍ</button>
+      <button class="tf-chip tfc-plan"   data-f="مخطط"   onclick="setTF(this,'مخطط')">مخطط</button>
+      <button class="tf-chip tfc-hold"   data-f="متوقف"  onclick="setTF(this,'متوقف')">متوقف</button>
+    </div>
+
+    <div class="sort-bar">
+      <span class="sort-label">ترتيب حسب:</span>
+      <select class="sort-select" id="sortSelect" onchange="renderTasks()">
+        <option value="date-desc">الأحدث أولاً</option>
+        <option value="date-asc">الأقدم أولاً</option>
+        <option value="end-asc">موعد الاكتمال (الأقرب)</option>
+        <option value="status">الحالة</option>
+        <option value="prog-desc">نسبة الإنجاز (الأعلى)</option>
+      </select>
+    </div>
+
+    <div id="tasksList"></div>
+  </div>
+
+<!-- EDIT DRAWER -->
+<div class="edit-overlay" id="editOverlay" onclick="if(event.target===this)closeEdit()">
+  <div class="edit-drawer">
+    <div class="edit-handle"></div>
+    <div class="edit-hdr">
+      <div class="edit-hdr-title">تعديل المهمة</div>
+      <button class="edit-hdr-close" onclick="closeEdit()">✕</button>
+    </div>
+    <div class="edit-body">
+      <input type="hidden" id="e-id">
+
+      <div class="field">
+        <label class="field-label"><span class="req">*</span>عنوان المهمة</label>
+        <input type="text" id="e-title" placeholder="عنوان المهمة">
+      </div>
+
+      <div class="field">
+        <label class="field-label">الوصف</label>
+        <textarea id="e-desc" rows="3" placeholder="وصف المهمة..."></textarea>
+      </div>
+
+      <div class="field">
+        <label class="field-label"><span class="req">*</span>الفرع</label>
+        <div class="branch-grid" id="e-branchGrid"></div>
+      </div>
+
+      <div class="field">
+        <label class="field-label"><span class="req">*</span>الحالة</label>
+        <div class="status-grid">
+          <button class="status-opt" data-s="مخطط"  onclick="eSelStatus(this)">مخطط<small>لم تبدأ بعد</small></button>
+          <button class="status-opt" data-s="جارٍ"  onclick="eSelStatus(this)">جارٍ<small>قيد التنفيذ</small></button>
+          <button class="status-opt" data-s="مكتمل" onclick="eSelStatus(this)">مكتمل<small>تم الإنجاز</small></button>
+          <button class="status-opt" data-s="متوقف" onclick="eSelStatus(this)">متوقف<small>موقوف مؤقتاً</small></button>
+        </div>
+        <div class="stop-reason" id="e-stopReason" style="margin-top:12px">
+          <label class="field-label" style="color:var(--amber)">سبب التوقف</label>
+          <div class="stop-chips" id="e-stopChips">
+            <button class="stop-chip" onclick="eSelStop(this)">انتظار قطع غيار</button>
+            <button class="stop-chip" onclick="eSelStop(this)">انتظار موافقة</button>
+            <button class="stop-chip" onclick="eSelStop(this)">توقف مؤقت للجدولة</button>
+            <button class="stop-chip" onclick="eSelStop(this)">مشكلة تقنية</button>
+            <button class="stop-chip" onclick="eSelStop(this)">نقص عمالة</button>
+            <button class="stop-chip" onclick="eSelStop(this)">أخرى</button>
+          </div>
+          <input type="text" id="e-stop-reason" placeholder="أو اكتب السبب..." style="margin-top:8px">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">نسبة الإنجاز</label>
+        <div class="prog-track" id="e-progTrack" style="height:10px;margin-bottom:8px;position:relative">
+          <div class="prog-fill" id="e-progFill" style="width:0%;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),#60A5FA)">
+            <div class="prog-thumb" id="e-progThumb"></div>
+          </div>
+          <input type="range" class="custom" id="e-progRange" min="0" max="100" value="0"
+            oninput="eUpdateProg(this.value)">
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="prog-milestones" style="flex:1">
+            <button class="ms-btn" onclick="eSetMs(0)">0%</button>
+            <button class="ms-btn" onclick="eSetMs(25)">25%</button>
+            <button class="ms-btn" onclick="eSetMs(50)">50%</button>
+            <button class="ms-btn" onclick="eSetMs(75)">75%</button>
+            <button class="ms-btn" onclick="eSetMs(100)">100%</button>
+          </div>
+          <span class="slider-val" id="e-progVal" style="font-size:16px;margin-right:10px">0%</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">تاريخ البدء</label>
+          <input type="date" id="e-start">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label class="field-label">تاريخ الاكتمال المتوقع</label>
+          <input type="date" id="e-end">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:18px">
+        <button class="btn-submit" style="flex:1;padding:12px;font-size:13px" onclick="saveEdit()">حفظ التعديلات</button>
+        <button style="padding:12px 16px;background:var(--slate-lt);border:1px solid var(--border);border-radius:var(--r2);font-family:var(--font);font-size:13px;font-weight:600;color:var(--ink-3);cursor:pointer" onclick="closeEdit()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM BAR -->
+<div class="del-confirm" id="delConfirm">
+  <span class="del-msg">تأكيد حذف هذه المهمة نهائياً؟</span>
+  <div class="del-btns">
+    <button class="cbtn2 cbtn2-n" onclick="cancelDelete()">إلغاء</button>
+    <button class="cbtn2 cbtn2-y" onclick="confirmDelete()">حذف</button>
+  </div>
+</div>
+</div><!-- /wrap -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════ CONFIG ════
+const GAS_URL   = 'YOUR_GAS_URL_HERE';
+const STORAGE_KEY = 'apx_m_ach';
+const LOG_KEY     = 'apx_m_log';
+const BR_KEY      = 'apx_m_br';
+
+// ════ STATE ════
+let branches      = ['بريدة','عنيزة'];
+let currentStatus = null;
+let currentBranch = null;
+let selectedStop  = '';
+
+// ════ INIT ════
+document.addEventListener('DOMContentLoaded', () => {
+  updateDate();
+  loadBranches();
+  renderBranchGrid();
+  document.getElementById('f-start').value = today();
+  renderTasks();
+});
+
+function today() { return new Date().toISOString().split('T')[0]; }
+function updateDate() {
+  document.getElementById('hDate').textContent =
+    new Date().toLocaleDateString('ar-SA',{weekday:'short',month:'short',day:'numeric'}).replace(/\u200f/g,'');
+}
+
+function loadBranches() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(BR_KEY) || '["بريدة","عنيزة"]');
+    branches = [...new Set(['بريدة','عنيزة',...stored])];
+  } catch(e) { branches = ['بريدة','عنيزة']; }
+}
+
+// ════ BRANCH GRID ════
+function renderBranchGrid() {
+  document.getElementById('branchGrid').innerHTML = branches.map(b =>
+    `<button class="branch-opt" data-b="${b}" onclick="selBranch(this,'${b}')">${b}</button>`
+  ).join('');
+}
+
+function selBranch(btn, val) {
+  document.querySelectorAll('.branch-opt').forEach(b => b.className = 'branch-opt');
+  btn.classList.add('sel-' + (val==='بريدة'?'بريدة':val==='عنيزة'?'عنيزة':'other'));
+  currentBranch = val;
+}
+
+// ════ STATUS ════
+function selStatus(btn) {
+  document.querySelectorAll('.status-opt').forEach(b => b.className = 'status-opt');
+  btn.classList.add('sel-' + btn.dataset.s);
+  currentStatus = btn.dataset.s;
+
+  // show/hide stop reason
+  const sr = document.getElementById('stopReason');
+  if (btn.dataset.s === 'متوقف') { sr.classList.add('show'); }
+  else { sr.classList.remove('show'); selectedStop=''; document.getElementById('f-stop-reason').value=''; document.querySelectorAll('.stop-chip').forEach(c=>c.classList.remove('active')); }
+
+  // auto progress
+  if (btn.dataset.s === 'مكتمل') updateProg(100);
+  if (btn.dataset.s === 'مخطط')  updateProg(0);
+}
+
+// ════ STOP REASON ════
+function selStopReason(chip) {
+  document.querySelectorAll('.stop-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  selectedStop = chip.textContent;
+  document.getElementById('f-stop-reason').value = chip.textContent === 'أخرى' ? '' : chip.textContent;
+  if (chip.textContent === 'أخرى') document.getElementById('f-stop-reason').focus();
+}
+
+// ════ PROGRESS ════
+function updateProg(val) {
+  val = parseInt(val);
+  document.getElementById('progRange').value = val;
+  document.getElementById('progVal').textContent = val + '%';
+  document.getElementById('progFill').style.width = val + '%';
+  // milestone highlight
+  document.querySelectorAll('.ms-btn').forEach(b => {
+    b.classList.toggle('ms-active', parseInt(b.textContent) === val);
+  });
+  // color shift
+  const fill = document.getElementById('progFill');
+  if (val === 100) fill.style.background = 'linear-gradient(90deg,var(--green),#4ADE80)';
+  else if (val >= 75) fill.style.background = 'linear-gradient(90deg,var(--blue),#60A5FA)';
+  else if (val >= 50) fill.style.background = 'linear-gradient(90deg,var(--purple),#A78BFA)';
+  else fill.style.background = 'linear-gradient(90deg,var(--border-2),#94A3B8)';
+}
+
+function setMs(val) { updateProg(val); }
+
+// ════ SUBMIT ════
+function submitTask() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title)         { showToast('أدخل عنوان المهمة', 'err'); return; }
+  if (!currentBranch) { showToast('اختر الفرع', 'err'); return; }
+  if (!currentStatus) { showToast('اختر حالة المهمة', 'err'); return; }
+
+  const stopReason = currentStatus === 'متوقف'
+    ? (document.getElementById('f-stop-reason').value.trim() || selectedStop)
+    : '';
+
+  if (currentStatus === 'متوقف' && !stopReason) {
+    showToast('أدخل سبب التوقف', 'err'); return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'جارٍ التسجيل...';
+
+  const now  = new Date().toISOString();
+  const prog = parseInt(document.getElementById('progRange').value);
+  const item = {
+    id:        'ach_' + Date.now(),
+    title,
+    branch:    currentBranch,
+    desc:      document.getElementById('f-desc').value.trim(),
+    status:    currentStatus,
+    progress:  prog,
+    stopReason,
+    start:     document.getElementById('f-start').value,
+    end:       document.getElementById('f-end').value,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  // Save to shared localStorage
+  saveItem(item);
+  syncGAS(item);
+
+  // Show success
+  showSuccess(item);
+  btn.disabled = false; btn.textContent = 'تسجيل المهمة';
+}
+
+function saveItem(item) {
+  try {
+    const achs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    achs.unshift(item);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(achs));
+
+    // Add to log
+    const logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+    logs.unshift({
+      id: 'log_'+Date.now(), achId:item.id, achTitle:item.title,
+      branch:item.branch, action:'add',
+      detail: `تم تسجيل المهمة في فرع ${item.branch} — الحالة: ${item.status}${item.stopReason?' | سبب التوقف: '+item.stopReason:''}`,
+      changeNote: '', timestamp: item.createdAt
+    });
+    localStorage.setItem(LOG_KEY, JSON.stringify(logs.slice(0,300)));
+  } catch(e) { console.error(e); }
+}
+
+function showSuccess(item) {
+  document.getElementById('formView').style.display = 'none';
+  const ss = document.getElementById('successScreen');
+  ss.classList.add('show');
+
+  const statusColors = { مكتمل:'#16A34A', جارٍ:'#2563EB', مخطط:'#7C3AED', متوقف:'#D97706' };
+  const sc = statusColors[item.status] || '#64748B';
+
+  document.getElementById('successSummary').innerHTML = `
+    <div class="ss-row"><span class="ss-key">المهمة</span><span class="ss-val">${item.title}</span></div>
+    <div class="ss-row"><span class="ss-key">الفرع</span><span class="ss-val">${item.branch}</span></div>
+    <div class="ss-row"><span class="ss-key">الحالة</span><span class="ss-val" style="color:${sc}">${item.status}</span></div>
+    <div class="ss-row"><span class="ss-key">نسبة الإنجاز</span><span class="ss-val" style="color:var(--blue)">${item.progress}%</span></div>
+    ${item.stopReason?`<div class="ss-row"><span class="ss-key">سبب التوقف</span><span class="ss-val" style="color:var(--amber)">${item.stopReason}</span></div>`:''}
+    <div class="ss-row"><span class="ss-key">وقت التسجيل</span><span class="ss-val">${fmtDateTime(item.createdAt)}</span></div>
+  `;
+}
+
+function resetForm() {
+  document.getElementById('formView').style.display = 'block';
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-desc').value  = '';
+  document.getElementById('f-stop-reason').value = '';
+  document.getElementById('f-end').value   = '';
+  document.getElementById('f-start').value = today();
+  renderTasks();
+  document.getElementById('tc').textContent = '0/120';
+  document.getElementById('dc').textContent = '0 حرف';
+  document.querySelectorAll('.status-opt').forEach(b => b.className='status-opt');
+  document.querySelectorAll('.branch-opt').forEach(b => b.className='branch-opt');
+  document.querySelectorAll('.stop-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('stopReason').classList.remove('show');
+  currentStatus = null; currentBranch = null; selectedStop = '';
+  updateProg(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ════ GAS ════
+async function syncGAS(item) {
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') return;
+  try {
+    await fetch(GAS_URL, { method:'POST', body:JSON.stringify({action:'addMaintAch', data:item}) });
+  } catch(e) {}
+}
+
+// ════ HELPERS ════
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('ar-SA',{year:'numeric',month:'short',day:'numeric'}).replace(/\u200f/g,'')
+    + ' ' + d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+}
+let tTmr;
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  clearTimeout(tTmr); tTmr=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ════ TASKS LIST ════
+let taskFilter = 'all';
+
+function setTF(btn, val) {
+  document.querySelectorAll('.tf-chip').forEach(b => b.classList.remove('tfc-active'));
+  btn.classList.add('tfc-active');
+  taskFilter = val;
+  renderTasks();
+}
+
+function getMyTasks() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function renderTasks() {
+  const all   = getMyTasks();
+  const sort  = document.getElementById('sortSelect')?.value || 'date-desc';
+  const list  = document.getElementById('tasksList');
+  const count = document.getElementById('tasksCount');
+
+  let data = taskFilter === 'all' ? all : all.filter(t => t.status === taskFilter);
+
+  // sort
+  data = [...data].sort((a,b) => {
+    if (sort === 'date-desc') return new Date(b.createdAt) - new Date(a.createdAt);
+    if (sort === 'date-asc')  return new Date(a.createdAt) - new Date(b.createdAt);
+    if (sort === 'end-asc') {
+      if (!a.end && !b.end) return 0;
+      if (!a.end) return 1; if (!b.end) return -1;
+      return new Date(a.end) - new Date(b.end);
+    }
+    if (sort === 'status') {
+      const order = ['متوقف','جارٍ','مخطط','مكتمل'];
+      return order.indexOf(a.status) - order.indexOf(b.status);
+    }
+    if (sort === 'prog-desc') return (parseInt(b.progress)||0) - (parseInt(a.progress)||0);
+    return 0;
+  });
+
+  count.textContent = data.length;
+
+  if (!data.length) {
+    list.innerHTML = `<div class="tasks-empty">
+      <div class="tasks-empty-icon">📋</div>
+      <div class="tasks-empty-text">${all.length===0 ? 'لم تسجّل أي مهام بعد' : 'لا توجد مهام بهذا التصنيف'}</div>
+    </div>`;
+    return;
+  }
+
+  const statusBarColor = { مكتمل:'var(--done-c)', جارٍ:'var(--prog-c)', مخطط:'var(--plan-c)', متوقف:'var(--hold-c)' };
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  list.innerHTML = data.map(t => {
+    const pct = parseInt(t.progress) || 0;
+    const brCls = t.branch==='بريدة' ? 'tb-branch-بريدة' : t.branch==='عنيزة' ? 'tb-branch-عنيزة' : 'tb-branch-other';
+
+    // deadline logic
+    let dlHtml = '';
+    if (t.end && t.status !== 'مكتمل') {
+      const endDate = new Date(t.end); endDate.setHours(0,0,0,0);
+      const diff = Math.round((endDate - today) / 86400000);
+      if (diff < 0)       dlHtml = `<div class="task-deadline dl-overdue">متأخر ${Math.abs(diff)} يوم</div>`;
+      else if (diff === 0) dlHtml = `<div class="task-deadline dl-today">موعد الاكتمال اليوم</div>`;
+      else if (diff <= 3)  dlHtml = `<div class="task-deadline dl-soon">متبقي ${diff} أيام</div>`;
+      else                 dlHtml = `<div class="task-deadline dl-ok">موعد الاكتمال: ${t.end}</div>`;
+    }
+
+    return `<div class="task-card">
+      <div class="task-card-inner">
+        <div class="task-side-bar" style="background:${statusBarColor[t.status]||'var(--slate)'}"></div>
+        <div class="task-body">
+          <div class="task-top">
+            <div class="task-title-text">${t.title}</div>
+            <div class="task-badges">
+              <span class="t-badge ${brCls}">${t.branch}</span>
+              <span class="t-badge tb-${t.status}">${t.status}</span>
+            </div>
+          </div>
+          ${t.desc ? `<div class="task-desc">${t.desc}</div>` : ''}
+          ${t.stopReason ? `<div class="task-stop">سبب التوقف: ${t.stopReason}</div>` : ''}
+          <div class="task-prog-row">
+            <div class="task-prog-track"><div class="task-prog-fill tpf-${t.status}" style="width:${pct}%"></div></div>
+            <span class="task-prog-pct">${pct}%</span>
+          </div>
+          <div class="task-dates">
+            ${t.start ? `<span class="task-date-item">بدأ: <strong>${t.start}</strong></span>` : ''}
+            ${t.end   ? `<span class="task-date-item">اكتمال: <strong>${t.end}</strong></span>` : ''}
+            <span class="task-date-item">سُجّل: <strong>${fmtDateShort(t.createdAt)}</strong></span>
+          </div>
+        </div>
+      </div>
+      ${dlHtml}
+    </div>`;
+  }).join('');
+}
+
+function fmtDateShort(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('ar-SA',{month:'short',day:'numeric'}).replace(/\u200f/g,'');
+}
+
+// Re-render tasks after each save
+const _origSaveItem = saveItem;
+function saveItem(item) {
+  _origSaveItem(item);
+  renderTasks();
+}
+
+
+// ════ EDIT & DELETE ════
+let editingTaskId  = null;
+let deletingTaskId = null;
+let eCurrentStatus = null;
+let eCurrentBranch = null;
+
+function editTask(id) {
+  const tasks = getMyTasks();
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editingTaskId = id;
+
+  document.getElementById('e-id').value    = t.id;
+  document.getElementById('e-title').value = t.title;
+  document.getElementById('e-desc').value  = t.desc || '';
+  document.getElementById('e-start').value = t.start || '';
+  document.getElementById('e-end').value   = t.end   || '';
+
+  // branch grid
+  document.getElementById('e-branchGrid').innerHTML =
+    branches.map(b => `<button class="branch-opt" data-b="${b}" onclick="eSelBranch(this,'${b}')">${b}</button>`).join('');
+  eCurrentBranch = t.branch;
+  document.querySelectorAll('#e-branchGrid .branch-opt').forEach(btn => {
+    if (btn.dataset.b === t.branch) btn.classList.add('sel-' + (t.branch==='بريدة'?'بريدة':t.branch==='عنيزة'?'عنيزة':'other'));
+  });
+
+  // status
+  eCurrentStatus = t.status;
+  document.querySelectorAll('#editOverlay .status-opt').forEach(b => {
+    b.className = 'status-opt';
+    if (b.dataset.s === t.status) b.classList.add('sel-' + t.status);
+  });
+  const sr = document.getElementById('e-stopReason');
+  if (t.status === 'متوقف') { sr.classList.add('show'); document.getElementById('e-stop-reason').value = t.stopReason || ''; }
+  else { sr.classList.remove('show'); }
+
+  // progress
+  eUpdateProg(t.progress || 0);
+
+  document.getElementById('editOverlay').classList.add('open');
+  document.getElementById('e-title').focus();
+}
+
+function closeEdit() {
+  document.getElementById('editOverlay').classList.remove('open');
+  editingTaskId = null;
+}
+
+function eSelBranch(btn, val) {
+  document.querySelectorAll('#e-branchGrid .branch-opt').forEach(b => b.className = 'branch-opt');
+  btn.classList.add('sel-' + (val==='بريدة'?'بريدة':val==='عنيزة'?'عنيزة':'other'));
+  eCurrentBranch = val;
+}
+
+function eSelStatus(btn) {
+  document.querySelectorAll('#editOverlay .status-opt').forEach(b => b.className = 'status-opt');
+  btn.classList.add('sel-' + btn.dataset.s);
+  eCurrentStatus = btn.dataset.s;
+  const sr = document.getElementById('e-stopReason');
+  if (btn.dataset.s === 'متوقف') { sr.classList.add('show'); }
+  else { sr.classList.remove('show'); document.getElementById('e-stop-reason').value = ''; }
+  if (btn.dataset.s === 'مكتمل') eUpdateProg(100);
+  if (btn.dataset.s === 'مخطط')  eUpdateProg(0);
+}
+
+function eSelStop(chip) {
+  document.querySelectorAll('#e-stopChips .stop-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  document.getElementById('e-stop-reason').value = chip.textContent === 'أخرى' ? '' : chip.textContent;
+}
+
+function eUpdateProg(val) {
+  val = parseInt(val);
+  document.getElementById('e-progRange').value = val;
+  document.getElementById('e-progVal').textContent = val + '%';
+  document.getElementById('e-progFill').style.width = val + '%';
+  document.querySelectorAll('#editOverlay .ms-btn').forEach(b => {
+    b.classList.toggle('ms-active', parseInt(b.textContent) === val);
+  });
+  const fill = document.getElementById('e-progFill');
+  if (val===100) fill.style.background='linear-gradient(90deg,var(--green),#4ADE80)';
+  else if (val>=75) fill.style.background='linear-gradient(90deg,var(--blue),#60A5FA)';
+  else if (val>=50) fill.style.background='linear-gradient(90deg,var(--purple),#A78BFA)';
+  else fill.style.background='linear-gradient(90deg,var(--border-2),#94A3B8)';
+}
+function eSetMs(v) { eUpdateProg(v); }
+
+function saveEdit() {
+  const title = document.getElementById('e-title').value.trim();
+  if (!title)          { showToast('أدخل عنوان المهمة', 'err'); return; }
+  if (!eCurrentBranch) { showToast('اختر الفرع', 'err'); return; }
+  if (!eCurrentStatus) { showToast('اختر الحالة', 'err'); return; }
+
+  const stopReason = eCurrentStatus === 'متوقف'
+    ? document.getElementById('e-stop-reason').value.trim() : '';
+  if (eCurrentStatus === 'متوقف' && !stopReason) { showToast('أدخل سبب التوقف', 'err'); return; }
+
+  try {
+    let tasks = getMyTasks();
+    const idx = tasks.findIndex(x => x.id === editingTaskId);
+    if (idx === -1) { showToast('المهمة غير موجودة', 'err'); return; }
+
+    const old = {...tasks[idx]};
+    const now = new Date().toISOString();
+    tasks[idx] = { ...old,
+      title, branch: eCurrentBranch, status: eCurrentStatus,
+      desc:        document.getElementById('e-desc').value.trim(),
+      progress:    parseInt(document.getElementById('e-progRange').value),
+      stopReason,
+      start:       document.getElementById('e-start').value,
+      end:         document.getElementById('e-end').value,
+      updatedAt:   now,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+
+    // log the change
+    const diff = buildEditDiff(old, tasks[idx]);
+    const logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+    logs.unshift({ id:'log_'+Date.now(), achId:old.id, achTitle:tasks[idx].title,
+      branch:tasks[idx].branch, action:'edit', detail:diff, changeNote:'', timestamp:now });
+    localStorage.setItem(LOG_KEY, JSON.stringify(logs.slice(0,300)));
+
+    // sync to GAS
+    syncGASUpdate(tasks[idx]);
+
+    closeEdit();
+    renderTasks();
+    showToast('تم حفظ التعديلات', 'ok');
+  } catch(e) { showToast('خطأ في الحفظ', 'err'); }
+}
+
+function buildEditDiff(o, n) {
+  const p = [];
+  if (o.title    !== n.title)    p.push(`العنوان: "${o.title}" → "${n.title}"`);
+  if (o.branch   !== n.branch)   p.push(`الفرع: ${o.branch} → ${n.branch}`);
+  if (o.status   !== n.status)   p.push(`الحالة: ${o.status} → ${n.status}`);
+  if (o.progress !== n.progress) p.push(`الإنجاز: ${o.progress}% → ${n.progress}%`);
+  if (o.end      !== n.end)      p.push(`تاريخ الاكتمال: ${o.end||'—'} → ${n.end||'—'}`);
+  if (o.stopReason !== n.stopReason && n.stopReason) p.push(`سبب التوقف: ${n.stopReason}`);
+  return p.length ? p.join(' | ') : 'تعديل عام';
+}
+
+// ════ DELETE ════
+let delConfirmVisible = false;
+function deleteTask(id) {
+  deletingTaskId = id;
+  const bar = document.getElementById('delConfirm');
+  bar.classList.add('show');
+  bar.style.position = 'fixed';
+  bar.style.bottom = '0';
+  bar.style.left = '0';
+  bar.style.right = '0';
+  bar.style.margin = '0';
+  bar.style.borderRadius = '12px 12px 0 0';
+  bar.style.zIndex = '300';
+  bar.style.padding = '16px 18px';
+}
+function cancelDelete() { deletingTaskId=null; document.getElementById('delConfirm').classList.remove('show'); }
+function confirmDelete() {
+  try {
+    let tasks = getMyTasks();
+    const t = tasks.find(x => x.id === deletingTaskId);
+    tasks = tasks.filter(x => x.id !== deletingTaskId);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    if (t) {
+      const logs = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+      logs.unshift({ id:'log_'+Date.now(), achId:t.id, achTitle:t.title,
+        branch:t.branch, action:'delete', detail:'تم حذف المهمة', changeNote:'', timestamp:new Date().toISOString() });
+      localStorage.setItem(LOG_KEY, JSON.stringify(logs.slice(0,300)));
+      syncGASDelete(t.id);
+    }
+    cancelDelete();
+    renderTasks();
+    showToast('تم حذف المهمة', 'err');
+  } catch(e) { showToast('خطأ في الحذف', 'err'); }
+}
+
+// ════ GAS SYNC (update/delete) ════
+async function syncGASUpdate(item) {
+  if (!GAS_URL || GAS_URL==='YOUR_GAS_URL_HERE') return;
+  try { await fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'updateMaintAch',data:item})}); } catch(e){}
+}
+async function syncGASDelete(id) {
+  if (!GAS_URL || GAS_URL==='YOUR_GAS_URL_HERE') return;
+  try { await fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'deleteMaintAch',id})}); } catch(e){}
+}
+
+</script>
+</body>
+</html>
