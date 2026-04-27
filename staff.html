@@ -982,6 +982,10 @@ function renderTasks() {
         </div>
       </div>
       ${dlHtml}
+      <div class="task-card-actions">
+        <button class="tca-btn" onclick="editTask('${t.id}')">تعديل</button>
+        <button class="tca-btn tca-danger" onclick="deleteTask('${t.id}')">حذف</button>
+      </div>
     </div>`;
   }).join('');
 }
