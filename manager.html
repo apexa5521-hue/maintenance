@@ -598,6 +598,26 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   color:var(--text-2);
 }
 .theme-btn:hover { background:var(--raised); border-color:var(--muted); }
+
+/* ── BRANCH MANAGE ── */
+.br-chip-wrap { position:relative; display:inline-flex; align-items:center; gap:3px; flex-shrink:0; }
+.br-manage-btn {
+  width:20px; height:20px; border-radius:4px; border:none;
+  background:transparent; cursor:pointer; display:flex; align-items:center;
+  justify-content:center; font-size:11px; color:var(--text-3);
+  transition:all .14s; padding:0; flex-shrink:0;
+}
+.br-manage-btn:hover { background:var(--ghost); color:var(--text-1); }
+.br-manage-btn.del:hover { background:rgba(251,113,133,.15); color:var(--rose); }
+
+/* Branch mini modal */
+.br-modal {
+  background:var(--deep); border:1px solid var(--rim);
+  border-radius:var(--r); padding:20px; width:90%; max-width:360px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  animation: kpiIn .2s var(--tr);
+}
+.br-modal-title { font-family:var(--font-d); font-size:14px; font-weight:700; margin-bottom:14px; color:var(--text-1); }
 </style>
 </head>
 <body>
@@ -618,7 +638,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
       </div>
     </div>
     <div class="hdr-right">
-      <span class="hdr-badge">المتابعة</span>
+      <span class="hdr-badge">مدير تنفيذي</span>
       <div class="hdr-date" id="hDate">—</div>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
     </div>
@@ -652,7 +672,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   <!-- ════ DASHBOARD ════ -->
   <section class="panel active" id="panel-dashboard">
     <div class="dash-hero">
-      <div class="dash-hero-title">مرحباً، <span>في لوحة الإشراف</span></div>
+      <div class="dash-hero-title">مرحباً، <span>المدير التنفيذي</span></div>
       <div class="dash-hero-sub">متابعة الأعمال الموكلة لقسم الصيانة والتشغيل</div>
     </div>
 
@@ -817,11 +837,41 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   </div>
 </div>
 
+<!-- EDIT BRANCH -->
+<div class="mini-ov" id="brEditOv" onclick="if(event.target===this)closeEditBr()">
+  <div class="mini-box">
+    <div class="mini-title">تعديل اسم الفرع</div>
+    <div class="field">
+      <label class="f-label">الاسم الجديد</label>
+      <input type="text" id="editBrName" placeholder="اسم الفرع">
+    </div>
+    <div class="btn-row">
+      <button class="btn-g" onclick="closeEditBr()">إلغاء</button>
+      <button class="btn-p" onclick="saveEditBr()">حفظ التعديل</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE BRANCH CONFIRM -->
+<div class="mini-ov" id="brDelOv" onclick="if(event.target===this)closeDelBr()">
+  <div class="mini-box">
+    <div class="mini-title" style="color:var(--rose)">حذف الفرع</div>
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:8px;line-height:1.6">
+      هل تريد حذف فرع <strong id="brDelName" style="color:var(--text-1)"></strong>؟
+    </p>
+    <p style="font-size:11px;color:var(--amber);margin-bottom:16px;" id="brDelCount"></p>
+    <div class="btn-row">
+      <button class="btn-g" onclick="closeDelBr()">إلغاء</button>
+      <button style="flex:1;padding:12px;background:var(--rose);color:#fff;border:none;border-radius:var(--r2);font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;" onclick="confirmDelBr()">حذف الفرع</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ════ CONFIG ════
-const GAS_URL     = 'https://script.google.com/macros/s/AKfycbxm1QkCIKCL7LySR7aIJV0X8uxuOH70F8oHaWhjFSnyBqTC0xUShnfnyPXrDR5YTc77/exec';
+const GAS_URL     = 'https://script.google.com/macros/s/AKfycbxf78T-P1OtOvPpj3HoceCtChXXuiKE59Thx4YKlkVNnoWRmAlmBlJVJywxu2ZIv8Yg/exec';
 const SK_ACH = 'apx_m_ach', SK_LOG = 'apx_m_log', SK_BR = 'apx_m_br';
 
 // ════ STATE ════
@@ -873,9 +923,28 @@ function setupNav() {
 
 // ════ BRANCH BAR ════
 function renderBranchBar() {
+  // Extra branches (non-default) — with edit/delete
   document.getElementById('extraBr').innerHTML =
-    branches.filter(b=>b!=='بريدة'&&b!=='عنيزة').map(b=>
-      `<button class="br-chip" data-b="${b}" onclick="setBF(this,'${b}')">${b}</button>`).join('');
+    branches.filter(b=>b!=='بريدة'&&b!=='عنيزة').map(b=>`
+      <div class="br-chip-wrap">
+        <button class="br-chip" data-b="${b}" onclick="setBF(this,'${b}')">${b}</button>
+        <button class="br-manage-btn" onclick="openEditBr('${b}')" title="تعديل اسم الفرع">✎</button>
+        <button class="br-manage-btn del" onclick="askDelBr('${b}')" title="حذف الفرع">✕</button>
+      </div>`).join('');
+
+  // Also add edit icon for default branches (بريدة/عنيزة) — but no delete
+  document.querySelectorAll('.br-chip.bc-brd, .br-chip.bc-unz').forEach(chip => {
+    // remove any existing manage btn next to it
+    const next = chip.nextElementSibling;
+    if (next && next.classList.contains('br-manage-btn')) next.remove();
+    // insert edit button after chip
+    const btn = document.createElement('button');
+    btn.className = 'br-manage-btn';
+    btn.title = 'تعديل اسم الفرع';
+    btn.textContent = '✎';
+    btn.onclick = () => openEditBr(chip.dataset.b);
+    chip.insertAdjacentElement('afterend', btn);
+  });
 }
 function setBF(btn, val) {
   document.querySelectorAll('.br-chip').forEach(b=>b.classList.remove('active'));
@@ -898,8 +967,82 @@ function closeAddBr() { document.getElementById('brOv').classList.remove('open')
 function addBranch()  {
   const n = document.getElementById('newBr').value.trim();
   if (!n) { showToast('أدخل اسم الفرع','err'); return; }
-  if (branches.includes(n)) { showToast('الفرع موجود','err'); return; }
-  branches.push(n); save(); renderBranchBar(); renderBGrid(); closeAddBr(); showToast('تم إضافة فرع '+n,'ok');
+  if (branches.includes(n)) { showToast('الفرع موجود بالفعل','err'); return; }
+  branches.push(n); save(); renderBranchBar(); renderBGrid(); closeAddBr();
+  showToast('تم إضافة فرع ' + n,'ok');
+}
+
+// ── EDIT BRANCH ──
+let editingBranch = null;
+
+function openEditBr(name) {
+  editingBranch = name;
+  document.getElementById('editBrName').value = name;
+  document.getElementById('brEditOv').classList.add('open');
+  setTimeout(() => document.getElementById('editBrName').focus(), 200);
+}
+
+function closeEditBr() {
+  document.getElementById('brEditOv').classList.remove('open');
+  editingBranch = null;
+}
+
+function saveEditBr() {
+  const newName = document.getElementById('editBrName').value.trim();
+  if (!newName) { showToast('أدخل اسم الفرع','err'); return; }
+  if (newName !== editingBranch && branches.includes(newName)) {
+    showToast('هذا الاسم موجود مسبقاً','err'); return;
+  }
+  const old = editingBranch;
+
+  // Update branches array
+  const idx = branches.indexOf(old);
+  if (idx !== -1) branches[idx] = newName;
+
+  // Update tasks with old branch name
+  tasks.forEach(t => { if (t.branch === old) t.branch = newName; });
+
+  save(); renderBranchBar(); renderBGrid();
+
+  // Update active filter if needed
+  if (branchFilter === old) { branchFilter = newName; }
+  // Re-sync branch chips active state
+  document.querySelectorAll('.br-chip').forEach(b => {
+    if (b.dataset.b === old) { b.dataset.b = newName; b.textContent = newName; }
+  });
+
+  render(); updateDash();
+  closeEditBr();
+  showToast('تم تعديل اسم الفرع إلى: ' + newName, 'ok');
+}
+
+// ── DELETE BRANCH ──
+let deletingBranch = null;
+
+function askDelBr(name) {
+  const count = tasks.filter(t => t.branch === name).length;
+  deletingBranch = name;
+  document.getElementById('brDelName').textContent = name;
+  document.getElementById('brDelCount').textContent =
+    count > 0 ? `سيؤثر على ${count} مهمة مسجلة` : 'لا توجد مهام مرتبطة';
+  document.getElementById('brDelOv').classList.add('open');
+}
+
+function closeDelBr() {
+  document.getElementById('brDelOv').classList.remove('open');
+  deletingBranch = null;
+}
+
+function confirmDelBr() {
+  if (!deletingBranch) return;
+  const name = deletingBranch;
+  branches = branches.filter(b => b !== name);
+  // Keep tasks but mark branch as deleted
+  tasks.forEach(t => { if (t.branch === name) t.branch = 'غير محدد'; });
+  if (branchFilter === name) branchFilter = 'الكل';
+  save(); renderBranchBar(); renderBGrid(); render(); updateDash();
+  closeDelBr();
+  showToast('تم حذف الفرع: ' + name, 'err');
 }
 
 // ════ STATUS / STOP ════
