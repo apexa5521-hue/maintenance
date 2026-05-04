@@ -255,6 +255,68 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   color:var(--text-2);
 }
 .theme-btn:hover { background:var(--raised); border-color:var(--muted); }
+
+/* ── SYNC ── */
+.sync-pill {
+  display:flex; align-items:center; gap:5px;
+  font-size:9px; font-family:var(--mono); color:var(--text-3);
+  background:var(--ghost); border:1px solid var(--rim);
+  padding:3px 9px; border-radius:99px;
+}
+.sync-dot { width:6px; height:6px; border-radius:50%; background:var(--emerald); flex-shrink:0; animation:sp 2s ease-in-out infinite; }
+.sync-dot.syncing { background:var(--sky); animation:spin .8s linear infinite; border-radius:0; clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%); }
+.sync-dot.error   { background:var(--rose); animation:none; }
+@keyframes sp   { 0%,100%{opacity:1}50%{opacity:.3} }
+@keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+/* ── BRANCH MANAGE ROW ── */
+.br-mgr { background:var(--deep); border-bottom:1px solid var(--rim); padding:8px 18px; }
+.br-mgr-in { max-width:520px; margin:0 auto; display:flex; align-items:center; gap:6px; overflow-x:auto; scrollbar-width:none; }
+.br-mgr-in::-webkit-scrollbar { display:none; }
+.br-lbl { font-size:10px; font-weight:700; color:var(--text-3); white-space:nowrap; text-transform:uppercase; letter-spacing:.5px; margin-left:4px; flex-shrink:0; }
+.br-ch {
+  flex-shrink:0; padding:5px 13px; border:1px solid var(--rim);
+  border-radius:99px; font-family:var(--font-b); font-size:11px; font-weight:600;
+  color:var(--text-3); background:var(--ghost); cursor:pointer; transition:all .15s;
+}
+.br-ch:hover { color:var(--text-1); border-color:var(--muted); }
+.br-ch.bc-all.on  { background:var(--text-1); color:var(--void); border-color:var(--text-1); }
+.br-ch.bc-brd.on  { background:var(--sky); color:var(--void); border-color:var(--sky); box-shadow:0 0 12px var(--sky-glow); }
+.br-ch.bc-unz.on  { background:var(--violet); color:var(--void); border-color:var(--violet); box-shadow:0 0 12px rgba(167,139,250,.4); }
+.br-ch.bc-ext.on  { background:var(--emerald); color:var(--void); border-color:var(--emerald); }
+.btn-add-br {
+  flex-shrink:0; padding:5px 11px; border:1px dashed var(--muted);
+  border-radius:99px; font-family:var(--font-b); font-size:11px; font-weight:600;
+  color:var(--text-3); background:transparent; cursor:pointer; transition:all .15s;
+}
+.btn-add-br:hover { border-color:var(--sky); color:var(--sky); }
+/* mini modal for add branch */
+.br-mini-ov { position:fixed;inset:0;background:rgba(8,12,20,.7);z-index:210;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px); }
+.br-mini-ov.open { display:flex; }
+.br-mini-box { background:var(--deep);border:1px solid var(--rim);border-radius:var(--r);padding:20px;width:90%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.5); }
+.br-mini-title { font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text-1); }
+/* delete confirm bar (restored) */
+.del-confirm-bar {
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--deep);border-top:1px solid rgba(251,113,133,.3);
+  padding:14px 20px;display:none;align-items:center;justify-content:space-between;gap:10px;z-index:300;
+}
+.del-confirm-bar.open { display:flex;animation:dbi .2s ease; }
+@keyframes dbi{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.del-msg2 { font-size:12px;font-weight:700;color:var(--rose); }
+.dcbtn2 { padding:8px 16px;border:none;border-radius:var(--r2);font-family:var(--font-b);font-size:12px;font-weight:700;cursor:pointer; }
+.dcbtn2-y { background:var(--rose);color:#fff; }
+.dcbtn2-n { background:var(--ghost);color:var(--text-2);border:1px solid var(--rim); }
+
+.br-chip-wrap { display:inline-flex; align-items:center; gap:2px; flex-shrink:0; }
+.br-mgr-btn {
+  width:18px; height:18px; border:none; background:transparent;
+  border-radius:4px; cursor:pointer; font-size:10px; color:var(--text-3);
+  display:flex; align-items:center; justify-content:center;
+  transition:all .13s; padding:0; line-height:1;
+}
+.br-mgr-btn:hover { background:var(--ghost); color:var(--text-1); }
+.br-mgr-btn.del:hover { background:rgba(251,113,133,.15); color:var(--rose); }
 </style>
 </head>
 <body>
@@ -269,6 +331,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
       <div class="hdr-logo"><svg viewBox="0 0 24 24"><path d="M11 4H4a1 1 0 00-1 1v14a1 1 0 001 1h14a1 1 0 001-1v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
       <div><div class="hdr-name">تسجيل مهمة</div><div class="hdr-sub">قسم الصيانة والتشغيل · APEXCARE</div></div>
     </div>
+    <div class="sync-pill" id="syncPill"><div class="sync-dot" id="sDot"></div><span id="sTxt">—</span></div>
     <div class="hdr-date" id="hDate">—</div>
     <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
   </div>
@@ -278,6 +341,18 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   <div class="tabs-in">
     <button class="tab on" data-p="form"  onclick="switchTab(this,'form')">تسجيل مهمة</button>
     <button class="tab"    data-p="tasks" onclick="switchTab(this,'tasks')">مهامي <span id="tasksTabCnt" style="font-family:var(--mono);font-size:10px;opacity:.6"></span></button>
+  </div>
+</div>
+
+<!-- BRANCH FILTER BAR -->
+<div class="br-mgr">
+  <div class="br-mgr-in">
+    <span class="br-lbl">الفرع</span>
+    <button class="br-ch bc-all on" data-b="الكل" onclick="setBrFilter(this,'الكل')">الكل</button>
+    <button class="br-ch bc-brd"    data-b="بريدة" onclick="setBrFilter(this,'بريدة')">بريدة</button>
+    <button class="br-ch bc-unz"    data-b="عنيزة" onclick="setBrFilter(this,'عنيزة')">عنيزة</button>
+    <div id="extraBrChips"></div>
+    <button class="btn-add-br" onclick="openAddBrModal()">+ فرع</button>
   </div>
 </div>
 
@@ -448,30 +523,73 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   </div>
 </div>
 
-<!-- DELETE BAR -->
-<div class="del-bar" id="delBar">
-  <span class="del-msg">تأكيد حذف هذه المهمة نهائياً؟</span>
-  <div class="del-btns">
-    <button class="dcbtn dcbtn-n" onclick="cancelDel()">إلغاء</button>
-    <button class="dcbtn dcbtn-y" onclick="confirmDel()">حذف</button>
+<!-- DELETE TASK BAR -->
+<div class="del-confirm-bar" id="delTaskBar">
+  <span class="del-msg2">تأكيد حذف هذه المهمة؟</span>
+  <div style="display:flex;gap:6px">
+    <button class="dcbtn2 dcbtn2-n" onclick="cancelDelTask()">إلغاء</button>
+    <button class="dcbtn2 dcbtn2-y" onclick="confirmDelTask()">حذف</button>
+  </div>
+</div>
+
+<!-- ADD BRANCH MODAL -->
+<div class="br-mini-ov" id="addBrOv" onclick="if(event.target===this)closeAddBrModal()">
+  <div class="br-mini-box">
+    <div class="br-mini-title">إضافة فرع جديد</div>
+    <div class="field"><label class="f-lbl">اسم الفرع</label>
+    <input type="text" id="newBrInput" placeholder="مثال: الرياض"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button style="flex:1;padding:11px;background:var(--ghost);border:1px solid var(--rim);border-radius:var(--r2);font-family:var(--font-b);font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer" onclick="closeAddBrModal()">إلغاء</button>
+      <button style="flex:1;padding:11px;background:var(--sky);color:var(--void);border:none;border-radius:var(--r2);font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 0 12px var(--sky-glow)" onclick="confirmAddBranch()">إضافة</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- EDIT BRANCH MODAL -->
+<div class="br-mini-ov" id="editBrOv" onclick="if(event.target===this)closeEditBrModal()">
+  <div class="br-mini-box">
+    <div class="br-mini-title">تعديل اسم الفرع</div>
+    <div class="field">
+      <label class="f-lbl">الاسم الجديد</label>
+      <input type="text" id="editBrInput" placeholder="اسم الفرع الجديد">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button style="flex:1;padding:11px;background:var(--ghost);border:1px solid var(--rim);border-radius:var(--r2);font-family:var(--font-b);font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer" onclick="closeEditBrModal()">إلغاء</button>
+      <button style="flex:1;padding:11px;background:var(--sky);color:var(--void);border:none;border-radius:var(--r2);font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 0 12px var(--sky-glow)" onclick="confirmEditBranch()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE BRANCH MODAL -->
+<div class="br-mini-ov" id="delBrOv" onclick="if(event.target===this)closeDelBrModal()">
+  <div class="br-mini-box">
+    <div class="br-mini-title" style="color:var(--rose)">حذف الفرع</div>
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:6px;line-height:1.6">
+      هل تريد حذف فرع <strong id="delBrNameSpan" style="color:var(--text-1)"></strong>؟
+    </p>
+    <p style="font-size:11px;color:var(--amber);margin-bottom:16px" id="delBrCount"></p>
+    <div style="display:flex;gap:8px">
+      <button style="flex:1;padding:11px;background:var(--ghost);border:1px solid var(--rim);border-radius:var(--r2);font-family:var(--font-b);font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer" onclick="closeDelBrModal()">إلغاء</button>
+      <button style="flex:1;padding:11px;background:var(--rose);color:#fff;border:none;border-radius:var(--r2);font-family:var(--font-b);font-size:13px;font-weight:700;cursor:pointer" onclick="confirmDelBranch()">حذف</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const GAS_URL   = 'https://script.google.com/macros/s/AKfycbxm1QkCIKCL7LySR7aIJV0X8uxuOH70F8oHaWhjFSnyBqTC0xUShnfnyPXrDR5YTc77/exec';
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycby6-00JtvmCcUtmkJK9aFKFeq9xmN7si5P8qjJg47dukPsRAe4yC1cgU7JceHl931uN/exec';
 const SK_ACH='apx_m_ach', SK_LOG='apx_m_log', SK_BR='apx_m_br';
 
 let branches=['بريدة','عنيزة'];
 let fStatus=null, fBranch=null, eStatus=null, eBranch=null;
-let editingId=null, deletingId=null, tfFilter='all';
+let editingId=null, tfFilter='all';
 
 document.addEventListener('DOMContentLoaded',()=>{
   updateDate(); loadBranches(); renderBrGrid(); renderEBrGrid();
   document.getElementById('f-start').value=today();
   initTheme();
-  renderTasks(); updateTabCount();
+  renderTasks(); updateTabCount(); renderExtraBrChips();
 });
 
 function today(){return new Date().toISOString().split('T')[0];}
@@ -576,6 +694,8 @@ function saveItem(item){
       changeNote:'',timestamp:item.createdAt});
     localStorage.setItem(SK_LOG,JSON.stringify(logs.slice(0,300)));
     updateTabCount();
+    // Re-sync after save to confirm GAS received it
+    setTimeout(syncTasks, 2000);
   }catch(e){}
 }
 
@@ -612,6 +732,44 @@ function resetForm(){
 
 // TASKS LIST
 function getTasks(){try{return JSON.parse(localStorage.getItem(SK_ACH)||'[]');}catch(e){return[];}}
+
+// ════ SYNC FROM GAS ════
+async function syncTasks() {
+  if (!GAS_URL) return;
+  setSS('syncing','جارٍ...');
+  try {
+    const res  = await fetch(GAS_URL + '?action=getAll&t=' + Date.now());
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    // Merge: keep local items not yet in GAS (optimistic adds)
+    const local    = getTasks();
+    const gasIds   = new Set(data.tasks.map(t=>t.id));
+    const pending  = local.filter(t=>!gasIds.has(t.id));
+    const merged   = [...data.tasks, ...pending];
+
+    localStorage.setItem(SK_ACH, JSON.stringify(merged));
+    if (data.branches?.length) {
+      localStorage.setItem(SK_BR, JSON.stringify([...new Set(['بريدة','عنيزة',...data.branches])]));
+      branches = [...new Set(['بريدة','عنيزة',...data.branches])];
+      renderBrGrid(); renderEBrGrid();
+    }
+
+    const now = new Date();
+    setSS('ok', now.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'}));
+    renderTasks(); updateTabCount(); renderExtraBrChips();
+  } catch(e) {
+    setSS('error','خطأ');
+  }
+}
+
+function setSS(state, txt) {
+  const dot = document.getElementById('sDot');
+  const el  = document.getElementById('sTxt');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (state!=='ok'?' '+state:'');
+  el.textContent = txt;
+}
 function setTF(btn,val){
   document.querySelectorAll('.tfchip').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on'); tfFilter=val; renderTasks();
@@ -619,7 +777,11 @@ function setTF(btn,val){
 function renderTasks(){
   const all=getTasks(), sort=document.getElementById('sortSel')?.value||'date-desc';
   const list=document.getElementById('tasksList');
-  let data=tfFilter==='all'?all:all.filter(t=>t.status===tfFilter);
+  let data = all.filter(t => {
+    const mF = tfFilter==='all' || t.status===tfFilter;
+    const mB = brFilterVal==='الكل' || t.branch===brFilterVal;
+    return mF && mB;
+  });
   data=[...data].sort((a,b)=>{
     if(sort==='date-desc')return new Date(b.createdAt)-new Date(a.createdAt);
     if(sort==='date-asc') return new Date(a.createdAt)-new Date(b.createdAt);
@@ -667,7 +829,7 @@ function renderTasks(){
       ${dl}
       <div class="tc-acts">
         <button class="tca" onclick="openEdit('${t.id}')">تعديل</button>
-        <button class="tca red" onclick="askDel('${t.id}')">حذف</button>
+        <button class="tca red" onclick="askDelTask('${t.id}')">حذف</button>
       </div>
     </div>`;
   }).join('');
@@ -733,23 +895,7 @@ function buildDiff(o,n){
   return p.length?p.join(' | '):'تعديل عام';
 }
 
-// DELETE
-function askDel(id){deletingId=id;document.getElementById('delBar').classList.add('open');}
-function cancelDel(){deletingId=null;document.getElementById('delBar').classList.remove('open');}
-function confirmDel(){
-  try{
-    let tasks=getTasks(); const t=tasks.find(x=>x.id===deletingId);
-    tasks=tasks.filter(x=>x.id!==deletingId);
-    localStorage.setItem(SK_ACH,JSON.stringify(tasks));
-    if(t){
-      const logs=JSON.parse(localStorage.getItem(SK_LOG)||'[]');
-      logs.unshift({id:'l_'+Date.now(),achId:t.id,achTitle:t.title,branch:t.branch,action:'delete',detail:'تم حذف المهمة',changeNote:'',timestamp:new Date().toISOString()});
-      localStorage.setItem(SK_LOG,JSON.stringify(logs.slice(0,300)));
-      syncGAS({id:t.id},false,'delete');
-    }
-    cancelDel(); renderTasks(); showToast('تم الحذف','err');
-  }catch(e){}
-}
+// الحذف غير متاح للموظف — المهام تُحفظ دائماً
 
 // GAS
 async function syncGAS(item,isNew,action){
@@ -758,7 +904,157 @@ async function syncGAS(item,isNew,action){
   try{await fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:act,data:item,id:item.id})});}catch(e){}
 }
 
-// HELPERS
+// ════ BRANCH FILTER BAR ════
+let brFilterVal = 'الكل';
+
+function setBrFilter(btn, val) {
+  document.querySelectorAll('.br-ch').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  brFilterVal = val;
+  renderTasks();
+}
+
+function renderExtraBrChips() {
+  // Extra branches: show with edit + delete
+  document.getElementById('extraBrChips').innerHTML =
+    branches.filter(b => b !== 'بريدة' && b !== 'عنيزة').map(b => `
+      <div class="br-chip-wrap">
+        <button class="br-ch bc-ext${brFilterVal===b?' on':''}" data-b="${b}" onclick="setBrFilter(this,'${b}')">${b}</button>
+        <button class="br-mgr-btn" onclick="openEditBrModal('${b}')" title="تعديل">✎</button>
+        <button class="br-mgr-btn del" onclick="openDelBrModal('${b}')" title="حذف">✕</button>
+      </div>`).join('');
+
+  // Default branches (بريدة/عنيزة): edit only, no delete
+  ['bc-brd','bc-unz'].forEach(cls => {
+    document.querySelectorAll('.'+cls).forEach(chip => {
+      const existing = chip.nextElementSibling;
+      if (existing && existing.classList.contains('br-mgr-btn')) existing.remove();
+      const btn = document.createElement('button');
+      btn.className = 'br-mgr-btn';
+      btn.title = 'تعديل';
+      btn.textContent = '✎';
+      btn.onclick = () => openEditBrModal(chip.dataset.b);
+      chip.insertAdjacentElement('afterend', btn);
+    });
+  });
+}
+
+// ════ ADD BRANCH ════
+function openAddBrModal() {
+  document.getElementById('addBrOv').classList.add('open');
+  setTimeout(() => document.getElementById('newBrInput').focus(), 200);
+}
+function closeAddBrModal() {
+  document.getElementById('addBrOv').classList.remove('open');
+  document.getElementById('newBrInput').value = '';
+}
+function confirmAddBranch() {
+  const name = document.getElementById('newBrInput').value.trim();
+  if (!name) { showToast('أدخل اسم الفرع', 'err'); return; }
+  if (branches.includes(name)) { showToast('الفرع موجود مسبقاً', 'err'); return; }
+  branches.push(name);
+  localStorage.setItem(SK_BR, JSON.stringify(branches));
+  renderBrGrid(); renderEBrGrid(); renderExtraBrChips();
+  closeAddBrModal();
+  showToast('تم إضافة فرع ' + name, 'ok');
+}
+
+// ════ EDIT BRANCH ════
+let editingBrName = null;
+
+function openEditBrModal(name) {
+  editingBrName = name;
+  document.getElementById('editBrInput').value = name;
+  document.getElementById('editBrOv').classList.add('open');
+  setTimeout(() => document.getElementById('editBrInput').focus(), 200);
+}
+function closeEditBrModal() {
+  document.getElementById('editBrOv').classList.remove('open');
+  editingBrName = null;
+}
+function confirmEditBranch() {
+  const newName = document.getElementById('editBrInput').value.trim();
+  if (!newName) { showToast('أدخل اسم الفرع', 'err'); return; }
+  if (newName !== editingBrName && branches.includes(newName)) { showToast('الاسم موجود مسبقاً', 'err'); return; }
+  const old = editingBrName;
+  const idx = branches.indexOf(old);
+  if (idx !== -1) branches[idx] = newName;
+  // Update tasks with old branch name
+  let tasks = getTasks();
+  tasks.forEach(t => { if (t.branch === old) t.branch = newName; });
+  localStorage.setItem(SK_ACH, JSON.stringify(tasks));
+  localStorage.setItem(SK_BR, JSON.stringify(branches));
+  if (brFilterVal === old) brFilterVal = newName;
+  renderBrGrid(); renderEBrGrid(); renderExtraBrChips(); renderTasks();
+  closeEditBrModal();
+  showToast('تم تعديل اسم الفرع إلى: ' + newName, 'ok');
+}
+
+// ════ DELETE BRANCH ════
+let deletingBrName = null;
+
+function openDelBrModal(name) {
+  deletingBrName = name;
+  const count = getTasks().filter(t => t.branch === name).length;
+  document.getElementById('delBrNameSpan').textContent = name;
+  document.getElementById('delBrCount').textContent =
+    count > 0 ? `⚠️ ${count} مهمة مرتبطة بهذا الفرع` : 'لا توجد مهام مرتبطة';
+  document.getElementById('delBrOv').classList.add('open');
+}
+function closeDelBrModal() {
+  document.getElementById('delBrOv').classList.remove('open');
+  deletingBrName = null;
+}
+function confirmDelBranch() {
+  if (!deletingBrName) return;
+  const name = deletingBrName;
+  branches = branches.filter(b => b !== name);
+  // Keep tasks but mark branch
+  let tasks = getTasks();
+  tasks.forEach(t => { if (t.branch === name) t.branch = 'غير محدد'; });
+  localStorage.setItem(SK_ACH, JSON.stringify(tasks));
+  localStorage.setItem(SK_BR, JSON.stringify(branches));
+  if (brFilterVal === name) brFilterVal = 'الكل';
+  // Reset branch bar active
+  document.querySelectorAll('.br-ch').forEach(b => b.classList.remove('on'));
+  document.querySelector('.br-ch.bc-all')?.classList.add('on');
+  renderBrGrid(); renderEBrGrid(); renderExtraBrChips(); renderTasks();
+  closeDelBrModal();
+  showToast('تم حذف الفرع: ' + name, 'err');
+}
+
+// ════ DELETE TASK ════
+let deletingTaskId = null;
+
+function askDelTask(id) {
+  deletingTaskId = id;
+  document.getElementById('delTaskBar').classList.add('open');
+}
+function cancelDelTask() {
+  deletingTaskId = null;
+  document.getElementById('delTaskBar').classList.remove('open');
+}
+function confirmDelTask() {
+  if (!deletingTaskId) return;
+  try {
+    let tasks = getTasks();
+    const t = tasks.find(x => x.id === deletingTaskId);
+    tasks = tasks.filter(x => x.id !== deletingTaskId);
+    localStorage.setItem(SK_ACH, JSON.stringify(tasks));
+    if (t) {
+      const logs = JSON.parse(localStorage.getItem(SK_LOG) || '[]');
+      logs.unshift({ id:'l_'+Date.now(), achId:t.id, achTitle:t.title,
+        branch:t.branch, action:'delete', detail:'تم حذف المهمة',
+        changeNote:'', timestamp:new Date().toISOString() });
+      localStorage.setItem(SK_LOG, JSON.stringify(logs.slice(0,300)));
+      syncGAS({ id: t.id }, false, 'delete');
+    }
+    cancelDelTask(); renderTasks(); updateTabCount(); renderExtraBrChips();
+    showToast('تم الحذف', 'err');
+  } catch(e) { showToast('خطأ في الحذف', 'err'); }
+}
+
+// ════ HELPERS
 function fmtShort(iso){if(!iso)return'—';return new Date(iso).toLocaleDateString('ar-SA',{month:'short',day:'numeric'}).replace(/\u200f/g,'');}
 function fmtDT(iso){if(!iso)return'—';const d=new Date(iso);return fmtShort(iso)+' '+d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});}
 let tT;
