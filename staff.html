@@ -317,6 +317,25 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
 }
 .br-mgr-btn:hover { background:var(--ghost); color:var(--text-1); }
 .br-mgr-btn.del:hover { background:rgba(251,113,133,.15); color:var(--rose); }
+
+/* ── SYNC BUTTON ── */
+.btn-sync {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 14px; border:1px solid var(--rim);
+  border-radius:99px; background:var(--ghost);
+  font-family:var(--font-b); font-size:11px; font-weight:600;
+  color:var(--text-2); cursor:pointer; transition:all .18s;
+  white-space:nowrap;
+}
+.btn-sync:hover { border-color:var(--sky); color:var(--sky); background:var(--sky-dim); }
+.btn-sync.syncing { opacity:.6; pointer-events:none; }
+.btn-sync .sync-ico { display:inline-block; transition:transform .5s; }
+.btn-sync.syncing .sync-ico { animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.sync-status {
+  font-size:10px; color:var(--text-3); font-family:var(--mono);
+  white-space:nowrap;
+}
 </style>
 </head>
 <body>
@@ -334,6 +353,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
     <div class="sync-pill" id="syncPill"><div class="sync-dot" id="sDot"></div><span id="sTxt">—</span></div>
     <div class="hdr-date" id="hDate">—</div>
     <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+    <button class="btn-sync" id="syncBtn" onclick="syncFromGAS()"><span class="sync-ico">↻</span>مزامنة</button>
   </div>
 </header>
 
@@ -432,6 +452,10 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
 
   <!-- ════ MY TASKS ════ -->
   <div class="panel" id="panel-tasks">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <span class="sync-status" id="syncLbl">—</span>
+      <button class="btn-sync" onclick="syncFromGAS()"><span class="sync-ico">↻</span>مزامنة من الشيت</button>
+    </div>
     <div class="tasks-hdr">
       <div class="tasks-t">مهامي</div>
       <span class="tasks-cnt" id="tasksCnt">0</span>
@@ -578,7 +602,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
 </div>
 
 <script>
-const GAS_URL   = 'https://script.google.com/macros/s/AKfycby6-00JtvmCcUtmkJK9aFKFeq9xmN7si5P8qjJg47dukPsRAe4yC1cgU7JceHl931uN/exec';
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbzjpXo5-MSoD2yxKENeIissLoM365LJ8ksGZLo7-Fzd_t1r91_kMTyetDlqC8Z-mSDy/exec';
 const SK_ACH='apx_m_ach', SK_LOG='apx_m_log', SK_BR='apx_m_br';
 
 let branches=['بريدة','عنيزة'];
@@ -1078,6 +1102,49 @@ function toggleTheme() {
 
 // init theme
 initTheme();
+
+// ════ SYNC FROM GAS ════
+async function syncFromGAS() {
+  const btn = document.getElementById('syncBtn');
+  const lbl = document.getElementById('syncLbl');
+  if (!GAS_URL) { showToast('لم يُضبط رابط GAS', 'err'); return; }
+  if (btn) { btn.classList.add('syncing'); btn.querySelector('.sync-ico').textContent = '⟳'; }
+  if (lbl) lbl.textContent = 'جارٍ المزامنة...';
+  try {
+    const res = await fetch(GAS_URL + '?action=getTasks&t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'فشل الجلب');
+
+    // Merge: GAS is source of truth — overwrite local
+    const remote = data.data || [];
+    localStorage.setItem(SK_ACH, JSON.stringify(remote));
+    tasks = remote;
+
+    // Also fetch log if available
+    try {
+      const lr = await fetch(GAS_URL + '?action=getLog&t=' + Date.now());
+      const ld = await lr.json();
+      if (ld.success && ld.data) {
+        logs = ld.data;
+        localStorage.setItem(SK_LOG, JSON.stringify(logs));
+      }
+    } catch(e) {}
+
+    renderTasks();
+    updateTabCount();
+
+    const now = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+    if (lbl) lbl.textContent = 'آخر مزامنة: ' + now;
+    showToast('تمت المزامنة — ' + remote.length + ' مهمة', 'ok');
+  } catch(e) {
+    if (lbl) lbl.textContent = 'فشلت المزامنة';
+    showToast('خطأ في المزامنة: ' + e.message, 'err');
+  } finally {
+    if (btn) { btn.classList.remove('syncing'); btn.querySelector('.sync-ico').textContent = '↻'; }
+  }
+}
+
 </script>
 </body>
 </html>
