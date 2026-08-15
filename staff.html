@@ -602,7 +602,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
 </div>
 
 <script>
-const GAS_URL   = 'https://script.google.com/macros/s/AKfycbzjpXo5-MSoD2yxKENeIissLoM365LJ8ksGZLo7-Fzd_t1r91_kMTyetDlqC8Z-mSDy/exec';
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbxf78T-P1OtOvPpj3HoceCtChXXuiKE59Thx4YKlkVNnoWRmAlmBlJVJywxu2ZIv8Yg/exec';
 const SK_ACH='apx_m_ach', SK_LOG='apx_m_log', SK_BR='apx_m_br';
 
 let branches=['بريدة','عنيزة'];
@@ -928,6 +928,13 @@ async function syncGAS(item,isNew,action){
   try{await fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:act,data:item,id:item.id})});}catch(e){}
 }
 
+async function syncBranchesToGAS() {
+  if(!GAS_URL) return;
+  try {
+    await fetch(GAS_URL, {method:'POST', body:JSON.stringify({action:'saveBranches', branches})});
+  } catch(e){}
+}
+
 // ════ BRANCH FILTER BAR ════
 let brFilterVal = 'الكل';
 
@@ -980,6 +987,7 @@ function confirmAddBranch() {
   localStorage.setItem(SK_BR, JSON.stringify(branches));
   renderBrGrid(); renderEBrGrid(); renderExtraBrChips();
   closeAddBrModal();
+  syncBranchesToGAS();
   showToast('تم إضافة فرع ' + name, 'ok');
 }
 
@@ -1010,6 +1018,7 @@ function confirmEditBranch() {
   localStorage.setItem(SK_BR, JSON.stringify(branches));
   if (brFilterVal === old) brFilterVal = newName;
   renderBrGrid(); renderEBrGrid(); renderExtraBrChips(); renderTasks();
+  syncBranchesToGAS();
   closeEditBrModal();
   showToast('تم تعديل اسم الفرع إلى: ' + newName, 'ok');
 }
@@ -1039,10 +1048,10 @@ function confirmDelBranch() {
   localStorage.setItem(SK_ACH, JSON.stringify(tasks));
   localStorage.setItem(SK_BR, JSON.stringify(branches));
   if (brFilterVal === name) brFilterVal = 'الكل';
-  // Reset branch bar active
   document.querySelectorAll('.br-ch').forEach(b => b.classList.remove('on'));
   document.querySelector('.br-ch.bc-all')?.classList.add('on');
   renderBrGrid(); renderEBrGrid(); renderExtraBrChips(); renderTasks();
+  syncBranchesToGAS();
   closeDelBrModal();
   showToast('تم حذف الفرع: ' + name, 'err');
 }
@@ -1133,6 +1142,17 @@ async function syncFromGAS() {
 
     renderTasks();
     updateTabCount();
+
+    // Fetch branches
+    try {
+      const br = await fetch(GAS_URL + '?action=getBranches&t=' + Date.now());
+      const bd = await br.json();
+      if (bd.success && bd.data && bd.data.length) {
+        branches = [...new Set(['بريدة','عنيزة',...bd.data])];
+        localStorage.setItem(SK_BR, JSON.stringify(branches));
+        renderBrGrid?.(); renderEBrGrid?.(); renderExtraBrChips?.();
+      }
+    } catch(e) {}
 
     const now = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
     if (lbl) lbl.textContent = 'آخر مزامنة: ' + now;
