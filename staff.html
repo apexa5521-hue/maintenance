@@ -930,22 +930,34 @@ async function syncGAS(item,isNew,action){
 }
 
 
-// جلب الفروع من الشيت تلقائياً عند فتح الصفحة
+// جلب البيانات من الشيت تلقائياً عند فتح الصفحة
 async function autoLoadBranches() {
   if (!GAS_URL) return;
   try {
-    const res = await fetch(GAS_URL + '?action=getBranches&t=' + Date.now());
+    const res = await fetch(GAS_URL + '?action=getAll&t=' + Date.now());
     if (!res.ok) return;
-    const data = await res.json();
-    if (data.success && data.data && data.data.length) {
-      branches = [...new Set(['بريدة','عنيزة',...data.data])];
-      localStorage.setItem(SK_BR, JSON.stringify(branches));
-      if (typeof renderBranchBar === 'function') renderBranchBar();
-      if (typeof renderBGrid    === 'function') renderBGrid();
-      if (typeof renderEBrGrid  === 'function') renderEBrGrid();
-      if (typeof renderExtraBrChips === 'function') renderExtraBrChips();
+    const text = await res.text();
+    const data = JSON.parse(text);
+    if (!data.success) return;
+
+    // تحديث المهام
+    if (data.tasks && data.tasks.length) {
+      localStorage.setItem(SK_ACH, JSON.stringify(data.tasks));
     }
-  } catch(e) {}
+    // تحديث الفروع
+    if (data.branches && data.branches.length) {
+      branches = [...new Set(['بريدة','عنيزة',...data.branches])];
+      localStorage.setItem(SK_BR, JSON.stringify(branches));
+      renderBrGrid(); renderEBrGrid(); renderExtraBrChips();
+    }
+    // تحديث السجل
+    if (data.logs && data.logs.length) {
+      localStorage.setItem(SK_LOG, JSON.stringify(data.logs));
+    }
+    renderTasks(); updateTabCount();
+  } catch(e) {
+    console.log('autoLoad error:', e.message);
+  }
 }
 
 async function syncBranchesToGAS() {
@@ -1140,46 +1152,41 @@ async function syncFromGAS() {
   if (btn) { btn.classList.add('syncing'); btn.querySelector('.sync-ico').textContent = '⟳'; }
   if (lbl) lbl.textContent = 'جارٍ المزامنة...';
   try {
-    const res = await fetch(GAS_URL + '?action=getTasks&t=' + Date.now());
+    const res = await fetch(GAS_URL + '?action=getAll&t=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch(e) { throw new Error('رد غير صالح من الشيت'); }
     if (!data.success) throw new Error(data.message || 'فشل الجلب');
 
-    // Merge: GAS is source of truth — overwrite local
-    const remote = data.data || [];
-    localStorage.setItem(SK_ACH, JSON.stringify(remote));
-    tasks = remote;
+    // ── حفظ المهام في localStorage ──
+    const remoteTasks = data.tasks || [];
+    localStorage.setItem(SK_ACH, JSON.stringify(remoteTasks));
 
-    // Also fetch log if available
-    try {
-      const lr = await fetch(GAS_URL + '?action=getLog&t=' + Date.now());
-      const ld = await lr.json();
-      if (ld.success && ld.data) {
-        logs = ld.data;
-        localStorage.setItem(SK_LOG, JSON.stringify(logs));
-      }
-    } catch(e) {}
+    // ── حفظ السجل ──
+    if (data.logs && data.logs.length) {
+      localStorage.setItem(SK_LOG, JSON.stringify(data.logs));
+    }
 
+    // ── حفظ الفروع وتحديث العرض ──
+    if (data.branches && data.branches.length) {
+      branches = [...new Set(['بريدة','عنيزة',...data.branches])];
+      localStorage.setItem(SK_BR, JSON.stringify(branches));
+      renderBrGrid(); renderEBrGrid(); renderExtraBrChips();
+    }
+
+    // ── تحديث الواجهة من localStorage الجديد ──
     renderTasks();
     updateTabCount();
 
-    // Fetch branches
-    try {
-      const br = await fetch(GAS_URL + '?action=getBranches&t=' + Date.now());
-      const bd = await br.json();
-      if (bd.success && bd.data && bd.data.length) {
-        branches = [...new Set(['بريدة','عنيزة',...bd.data])];
-        localStorage.setItem(SK_BR, JSON.stringify(branches));
-        renderBrGrid?.(); renderEBrGrid?.(); renderExtraBrChips?.();
-      }
-    } catch(e) {}
-
     const now = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
     if (lbl) lbl.textContent = 'آخر مزامنة: ' + now;
-    showToast('تمت المزامنة — ' + remote.length + ' مهمة', 'ok');
+    showToast('تمت المزامنة — ' + remoteTasks.length + ' مهمة', 'ok');
   } catch(e) {
     if (lbl) lbl.textContent = 'فشلت المزامنة';
     showToast('خطأ في المزامنة: ' + e.message, 'err');
+    console.error('syncFromGAS error:', e);
   } finally {
     if (btn) { btn.classList.remove('syncing'); btn.querySelector('.sync-ico').textContent = '↻'; }
   }
