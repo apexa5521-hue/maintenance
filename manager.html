@@ -618,6 +618,42 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   animation: kpiIn .2s var(--tr);
 }
 .br-modal-title { font-family:var(--font-d); font-size:14px; font-weight:700; margin-bottom:14px; color:var(--text-1); }
+
+/* ── SYNC INDICATOR ── */
+.sync-bar {
+  display:flex; align-items:center; gap:6px;
+  padding:4px 12px;
+  font-size:10px; font-family:var(--mono);
+  color:var(--text-3);
+}
+.sync-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--emerald); flex-shrink:0;
+  animation: syncPulse 2s ease-in-out infinite;
+}
+.sync-dot.syncing { background:var(--sky); animation:spin .8s linear infinite; border-radius:0; width:9px; height:9px; clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%); }
+.sync-dot.error   { background:var(--rose); animation:none; }
+@keyframes syncPulse { 0%,100%{opacity:1}50%{opacity:.4} }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+/* ── SYNC BUTTON ── */
+.btn-sync {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 14px; border:1px solid var(--rim);
+  border-radius:99px; background:var(--ghost);
+  font-family:var(--font-b); font-size:11px; font-weight:600;
+  color:var(--text-2); cursor:pointer; transition:all .18s;
+  white-space:nowrap;
+}
+.btn-sync:hover { border-color:var(--sky); color:var(--sky); background:var(--sky-dim); }
+.btn-sync.syncing { opacity:.6; pointer-events:none; }
+.btn-sync .sync-ico { display:inline-block; transition:transform .5s; }
+.btn-sync.syncing .sync-ico { animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.sync-status {
+  font-size:10px; color:var(--text-3); font-family:var(--mono);
+  white-space:nowrap;
+}
 </style>
 </head>
 <body>
@@ -638,9 +674,14 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
       </div>
     </div>
     <div class="hdr-right">
-      <span class="hdr-badge">لوحة متابعة</span>
+      <div class="sync-bar" id="syncBar">
+        <div class="sync-dot" id="syncDot"></div>
+        <span id="syncTxt">متزامن</span>
+      </div>
+      <span class="hdr-badge">مدير تنفيذي</span>
       <div class="hdr-date" id="hDate">—</div>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+      <button class="btn-sync" id="syncBtn" onclick="syncFromGAS()"><span class="sync-ico">↻</span>مزامنة</button>
     </div>
   </div>
 </header>
@@ -672,7 +713,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
   <!-- ════ DASHBOARD ════ -->
   <section class="panel active" id="panel-dashboard">
     <div class="dash-hero">
-      <div class="dash-hero-title">مرحباً، <span>في لوحة المتابعة </span></div>
+      <div class="dash-hero-title">مرحباً، <span>المدير التنفيذي</span></div>
       <div class="dash-hero-sub">متابعة الأعمال الموكلة لقسم الصيانة والتشغيل</div>
     </div>
 
@@ -723,6 +764,10 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
 
   <!-- ════ TASKS ════ -->
   <section class="panel" id="panel-list">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <span class="sync-status" id="syncLbl">—</span>
+      <button class="btn-sync" onclick="syncFromGAS()"><span class="sync-ico">↻</span>مزامنة من الشيت</button>
+    </div>
     <div class="list-toolbar">
       <div class="search-wrap">
         <div class="search-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
@@ -871,7 +916,7 @@ body.light input[type=text],body.light input[type=date],body.light textarea,body
 
 <script>
 // ════ CONFIG ════
-const GAS_URL     = 'https://script.google.com/macros/s/AKfycbzjpXo5-MSoD2yxKENeIissLoM365LJ8ksGZLo7-Fzd_t1r91_kMTyetDlqC8Z-mSDy/exec';
+const GAS_URL     = 'https://script.google.com/macros/s/AKfycbxf78T-P1OtOvPpj3HoceCtChXXuiKE59Thx4YKlkVNnoWRmAlmBlJVJywxu2ZIv8Yg/exec';
 const SK_ACH = 'apx_m_ach', SK_LOG = 'apx_m_log', SK_BR = 'apx_m_br';
 
 // ════ STATE ════
@@ -888,6 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
   render(); updateDash(); renderHistory(); renderRecent();
   document.getElementById('f-start').value = today();
   initTheme();
+  startAutoSync(); // ← جلب البيانات من الشيت عند الفتح + كل دقيقة
 });
 
 function today() { return new Date().toISOString().split('T')[0]; }
@@ -896,12 +942,15 @@ function updateDate() {
     new Date().toLocaleDateString('ar-SA',{weekday:'short',month:'short',day:'numeric'}).replace(/\u200f/g,'');
 }
 
-// ════ STORAGE ════
+// ════ STORAGE + SYNC ════
+let lastSyncAt = null;
+
 function save() {
   localStorage.setItem(SK_ACH, JSON.stringify(tasks));
   localStorage.setItem(SK_LOG, JSON.stringify(logs));
   localStorage.setItem(SK_BR,  JSON.stringify(branches));
 }
+
 function load() {
   try {
     tasks    = JSON.parse(localStorage.getItem(SK_ACH) || '[]');
@@ -909,6 +958,49 @@ function load() {
     const br = JSON.parse(localStorage.getItem(SK_BR)  || '["بريدة","عنيزة"]');
     branches = [...new Set(['بريدة','عنيزة',...br])];
   } catch(e) { tasks=[]; logs=[]; branches=['بريدة','عنيزة']; }
+}
+
+// Full sync from GAS — GAS is source of truth
+async function syncFromGAS() {
+  if (!GAS_URL) return;
+  setSyncState('syncing', 'جارٍ المزامنة...');
+  try {
+    const res = await fetch(GAS_URL + '?action=getAll&t=' + Date.now());
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    // Merge: GAS data takes priority, but keep local items not yet sent (optimistic)
+    const gasIds = new Set(data.tasks.map(t => t.id));
+    const localOnly = tasks.filter(t => !gasIds.has(t.id));
+
+    tasks = [...data.tasks, ...localOnly];
+    if (data.branches?.length) {
+      branches = [...new Set(['بريدة','عنيزة',...data.branches])];
+    }
+
+    save();
+    lastSyncAt = new Date();
+    setSyncState('ok', 'متزامن ' + lastSyncAt.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'}));
+    render(); updateDash(); renderHistory(); renderRecent();
+    renderBranchBar(); renderBGrid();
+  } catch(e) {
+    setSyncState('error', 'خطأ في المزامنة');
+    console.warn('Sync failed:', e);
+  }
+}
+
+function setSyncState(state, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncTxt');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (state !== 'ok' ? ' ' + state : '');
+  txt.textContent = text;
+}
+
+// Auto-sync every 60 seconds
+function startAutoSync() {
+  syncFromGAS();
+  setInterval(syncFromGAS, 60000);
 }
 
 // ════ NAV ════
@@ -969,6 +1061,7 @@ function addBranch()  {
   if (!n) { showToast('أدخل اسم الفرع','err'); return; }
   if (branches.includes(n)) { showToast('الفرع موجود بالفعل','err'); return; }
   branches.push(n); save(); renderBranchBar(); renderBGrid(); closeAddBr();
+  syncBranchesToGAS();
   showToast('تم إضافة فرع ' + n,'ok');
 }
 
@@ -1041,6 +1134,7 @@ function confirmDelBr() {
   tasks.forEach(t => { if (t.branch === name) t.branch = 'غير محدد'; });
   if (branchFilter === name) branchFilter = 'الكل';
   save(); renderBranchBar(); renderBGrid(); render(); updateDash();
+  syncBranchesToGAS();
   closeDelBr();
   showToast('تم حذف الفرع: ' + name, 'err');
 }
@@ -1393,6 +1487,13 @@ async function syncGAS(item, isNew, action) {
   try { await fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:act,data:item,id:item.id})}); } catch(e){}
 }
 
+async function syncBranchesToGAS() {
+  if(!GAS_URL) return;
+  try {
+    await fetch(GAS_URL, {method:'POST', body:JSON.stringify({action:'saveBranches', branches})});
+  } catch(e){}
+}
+
 // ════ HELPERS ════
 function fmtShort(iso){if(!iso)return'—';return new Date(iso).toLocaleDateString('ar-SA',{month:'short',day:'numeric'}).replace(/\u200f/g,'');}
 function fmtDT(iso){if(!iso)return'—';const d=new Date(iso);return fmtShort(iso)+' '+d.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});}
@@ -1417,6 +1518,63 @@ function toggleTheme() {
 
 // init
 initTheme();
+
+// ════ SYNC FROM GAS ════
+async function syncFromGAS() {
+  const btn = document.getElementById('syncBtn');
+  const lbl = document.getElementById('syncLbl');
+  if (!GAS_URL) { showToast('لم يُضبط رابط GAS', 'err'); return; }
+  if (btn) { btn.classList.add('syncing'); btn.querySelector('.sync-ico').textContent = '⟳'; }
+  if (lbl) lbl.textContent = 'جارٍ المزامنة...';
+  try {
+    const res = await fetch(GAS_URL + '?action=getTasks&t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'فشل الجلب');
+
+    // Merge: GAS is source of truth — overwrite local
+    const remote = data.data || [];
+    localStorage.setItem(SK_ACH, JSON.stringify(remote));
+    tasks = remote;
+
+    // Also fetch log if available
+    try {
+      const lr = await fetch(GAS_URL + '?action=getLog&t=' + Date.now());
+      const ld = await lr.json();
+      if (ld.success && ld.data) {
+        logs = ld.data;
+        localStorage.setItem(SK_LOG, JSON.stringify(logs));
+      }
+    } catch(e) {}
+
+    render ? render() : renderTasks?.();
+    updateDash?.();
+    renderHistory?.();
+    renderRecent?.();
+    updateTabCount?.();
+
+    // Fetch branches from GAS
+    try {
+      const br = await fetch(GAS_URL + '?action=getBranches&t=' + Date.now());
+      const bd = await br.json();
+      if (bd.success && bd.data && bd.data.length) {
+        branches = [...new Set(['بريدة','عنيزة',...bd.data])];
+        localStorage.setItem(SK_BR, JSON.stringify(branches));
+        renderBranchBar?.(); renderBGrid?.();
+      }
+    } catch(e) {}
+
+    const now = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+    if (lbl) lbl.textContent = 'آخر مزامنة: ' + now;
+    showToast('تمت المزامنة — ' + remote.length + ' مهمة', 'ok');
+  } catch(e) {
+    if (lbl) lbl.textContent = 'فشلت المزامنة';
+    showToast('خطأ في المزامنة: ' + e.message, 'err');
+  } finally {
+    if (btn) { btn.classList.remove('syncing'); btn.querySelector('.sync-ico').textContent = '↻'; }
+  }
+}
+
 </script>
 </body>
 </html>
