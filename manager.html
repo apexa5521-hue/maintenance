@@ -1490,22 +1490,33 @@ async function syncGAS(item, isNew, action) {
 }
 
 
-// جلب الفروع من الشيت تلقائياً عند فتح الصفحة
+// جلب البيانات من الشيت تلقائياً عند فتح الصفحة
 async function autoLoadBranches() {
   if (!GAS_URL) return;
   try {
-    const res = await fetch(GAS_URL + '?action=getBranches&t=' + Date.now());
+    const res = await fetch(GAS_URL + '?action=getAll&t=' + Date.now());
     if (!res.ok) return;
-    const data = await res.json();
-    if (data.success && data.data && data.data.length) {
-      branches = [...new Set(['بريدة','عنيزة',...data.data])];
-      localStorage.setItem(SK_BR, JSON.stringify(branches));
-      if (typeof renderBranchBar === 'function') renderBranchBar();
-      if (typeof renderBGrid    === 'function') renderBGrid();
-      if (typeof renderEBrGrid  === 'function') renderEBrGrid();
-      if (typeof renderExtraBrChips === 'function') renderExtraBrChips();
+    const text = await res.text();
+    const data = JSON.parse(text);
+    if (!data.success) return;
+
+    if (data.tasks && data.tasks.length) {
+      tasks = data.tasks;
+      localStorage.setItem(SK_ACH, JSON.stringify(tasks));
     }
-  } catch(e) {}
+    if (data.branches && data.branches.length) {
+      branches = [...new Set(['بريدة','عنيزة',...data.branches])];
+      localStorage.setItem(SK_BR, JSON.stringify(branches));
+      renderBranchBar(); renderBGrid();
+    }
+    if (data.logs && data.logs.length) {
+      logs = data.logs;
+      localStorage.setItem(SK_LOG, JSON.stringify(logs));
+    }
+    render(); updateDash(); renderHistory(); renderRecent();
+  } catch(e) {
+    console.log('autoLoad error:', e.message);
+  }
 }
 
 async function syncBranchesToGAS() {
@@ -1548,22 +1559,20 @@ async function syncFromGAS() {
   if (btn) { btn.classList.add('syncing'); btn.querySelector('.sync-ico').textContent = '⟳'; }
   if (lbl) lbl.textContent = 'جارٍ المزامنة...';
   try {
-    const res = await fetch(GAS_URL + '?action=getTasks&t=' + Date.now());
+    const res = await fetch(GAS_URL + '?action=getAll&t=' + Date.now());
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (!data.success) throw new Error(data.message || 'فشل الجلب');
 
     // Merge: GAS is source of truth — overwrite local
-    const remote = data.data || [];
+    const remote = data.tasks || data.data || [];
     localStorage.setItem(SK_ACH, JSON.stringify(remote));
     tasks = remote;
 
-    // Also fetch log if available
+    // Extract log from getAll response
     try {
-      const lr = await fetch(GAS_URL + '?action=getLog&t=' + Date.now());
-      const ld = await lr.json();
-      if (ld.success && ld.data) {
-        logs = ld.data;
+      if (data.logs && data.logs.length) {
+        logs = data.logs;
         localStorage.setItem(SK_LOG, JSON.stringify(logs));
       }
     } catch(e) {}
@@ -1576,8 +1585,8 @@ async function syncFromGAS() {
 
     // Fetch branches from GAS
     try {
-      const br = await fetch(GAS_URL + '?action=getBranches&t=' + Date.now());
-      const bd = await br.json();
+      const brRes = await fetch(GAS_URL + '?action=getBranches&t=' + Date.now());
+      const bd = await brRes.json();
       if (bd.success && bd.data && bd.data.length) {
         branches = [...new Set(['بريدة','عنيزة',...bd.data])];
         localStorage.setItem(SK_BR, JSON.stringify(branches));
